@@ -1,8 +1,5 @@
-import click
 from werkzeug.serving import run_simple
 
-import time
-from threading import Thread
 from werkzeug.wrappers import Request, Response
 from werkzeug.wsgi import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
