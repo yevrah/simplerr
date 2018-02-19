@@ -20,8 +20,32 @@ from pathlib import Path
 
 from .script import script
 
-import json
 from .template import T
+
+from peewee import *
+from peewee import ModelSelect
+
+from playhouse.shortcuts import model_to_dict, dict_to_model
+
+
+
+
+# We need custom json_serial to handle date time - not supported
+# by the default json_dumps
+#
+# See https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable
+
+import json
+from datetime import date, datetime
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+
 
 #  _   _   _   _  _  _   _ _ _  ___  ___   ___  _  _ _  ___  _  _  _  __
 # | \_/ | / \ | || \| | | | | || __|| o ) | o \/ \| | ||_ _|| || \| |/ _|
@@ -92,6 +116,21 @@ class web(object):
         file = match.file
 
 
+        # Check to see if this is a peewee model and convert to
+        # dict
+        if( isinstance(data, Model)):
+            out = model_to_dict(out)
+            data = out
+
+
+        if( isinstance(data, ModelSelect)):
+            array_out = []
+            for item in data:
+                array_out.append(model_to_dict(item))
+                out = {'results': array_out}
+                data = out
+
+
         # Template expected, attempt render
         if(template != None):
             out = web.template(cwd, template, data)
@@ -122,7 +161,7 @@ class web(object):
 
         # Just raw data, send as is
         # TODO: Must be flagged as json explicity
-        out = json.dumps(data)
+        out = json.dumps(data, default=json_serial)
         response = Response(out)
         response.headers['Content-Type'] = 'application/json'
         return response

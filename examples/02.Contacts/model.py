@@ -1,6 +1,6 @@
 from peewee import *
 
-db = SqliteDatabase('people.db')
+db = SqliteDatabase('./examples/02.Contacts/people.db')
 
 class Person(Model):
     name = CharField()

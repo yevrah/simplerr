@@ -21,6 +21,9 @@ import importlib.util
 from .web import web
 from .script import script
 
+import sys
+
+
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
@@ -133,7 +136,7 @@ class wsgi(object):
         path_with_cwd = Path.cwd() / path_site
 
         if path_site.exists():
-            return self.site
+            return path_site
 
         if path_with_cwd.exists():
             return path_with_cwd
@@ -146,17 +149,19 @@ class wsgi(object):
         ))
 
     def make_app(self):
+        # Add CWD to search path, this is where project modules will be located
+        sys.path.append( self.cwd.absolute().__str__() )
+
+
         self.app = DebuggedApplication(
-            dispatcher(self.cwd),
+            dispatcher(self.cwd.absolute().__str__()),
             evalex=True
         )
-
-        print('Shared Folder: {}'.format(path.join(path.dirname(self.cwd), 'shared')))
 
         return SharedDataMiddleware(
             self.app, {
                 # TODO: Remove Shared Middleware
-                '/shared':  path.join(self.cwd, 'shared')
+                # '/shared':  path.join(self.cwd, 'shared')
             })
 
     def serve(self):
