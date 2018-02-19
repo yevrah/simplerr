@@ -5,7 +5,7 @@ from werkzeug.serving import run_simple
 from os import path
 from threading import Thread
 from werkzeug.wrappers import Request, Response
-from werkzeug.wsgi import SharedDataMiddleware
+from werkzeug.wsgi import SharedDataMiddleware, wrap_file
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.debug import DebuggedApplication
 from werkzeug.serving import make_ssl_devcert
@@ -35,15 +35,15 @@ class web(object):
     template_engine = None
 
 
-    def __init__(self, route="/", template=None, methods=["GET"], endpoint=None):
+    def __init__(self, route="/", template=None, methods=["GET"], endpoint=None, file=False):
         self.route = route
         self.template = template
         self.methods = methods
         self.endpoint = endpoint or route
         self.fn = None
         self.args = None # to be set when matched() is called
+        self.file = file
 
-        print('>> Adding Route >> {}, {}', self.route, self.template)
 
     def __call__(self, fn):
         self.fn = fn
@@ -89,13 +89,24 @@ class web(object):
         out = match.fn(request, **args)
         data = out
         template = match.template
-
+        file = match.file
 
 
         # Template expected, attempt render
         if(template != None):
             out = web.template(cwd, template, data)
             response = Response(out)
+            response.headers['Content-Type'] = 'text/html;charset=utf-8'
+            return response
+
+
+        # Example implementation here
+        #   http://bit.ly/2ocHYNZ
+        if(file == True):
+            file_path = Path(cwd) / Path(out)
+            file = open(file_path.absolute().__str__(), 'rb')
+            data = wrap_file(environ, file)
+            response = Response(data, direct_passthrough=True)
             response.headers['Content-Type'] = 'text/html;charset=utf-8'
             return response
 
