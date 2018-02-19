@@ -165,7 +165,7 @@ class wsgi(object):
         self.middleware = self.make_app()
 
         """Generate SSL Keys, not currently used, needs some improvements"""
-        (crt, key) = make_ssl_devcert('/tmp/', host='localhost')
+        # (crt, key) = make_ssl_devcert('/tmp/', host='localhost')
 
         run_simple(self.hostname,
                    self.port,
