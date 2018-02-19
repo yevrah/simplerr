@@ -8,9 +8,7 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.wsgi import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.debug import DebuggedApplication
-
 from werkzeug.serving import make_ssl_devcert
-
 from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
 
 from jinja2 import Environment, FileSystemLoader, Template
@@ -73,7 +71,6 @@ class web(object):
             # Create the rule and add it tot he map
             rule = Rule(item.route, endpoint=item.endpoint)
             map.add(rule)
-            print(">> Searching destination {}".format(item.route))
 
         # Check for match
         urls = map.bind_to_environ(environ)
@@ -93,14 +90,20 @@ class web(object):
         data = out
         template = match.template
 
+
+
         # Template expected, attempt render
         if(template != None):
             out = web.template(cwd, template, data)
-            return Response(out)
+            response = Response(out)
+            response.headers['Content-Type'] = 'text/html;charset=utf-8'
+            return response
 
         # No template, just plain old string response
         if isinstance(data, str):
-            return Response(data)
+            response = Response(data)
+            response.headers['Content-Type'] = 'text/html;charset=utf-8'
+            return response
 
         # User has decided to run their own request object, just return this
         if isinstance(data, Response):

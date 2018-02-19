@@ -44,6 +44,15 @@ class script(object):
 
         # We also use pathlibs for a more OO view of the filesystem
         max_depth = self.route.parts.__len__()
+
+        # First edge case, were calling site root '/', path treats this as 0 length
+        # so it wont go into search loop below
+        if max_depth == 0:
+            root_index_py = self.cwd / 'index.py'
+            if root_index_py.exists():
+                return root_index_py.absolute().__str__()
+
+
         for i in range(max_depth,0,-1):
             search = self.route.parts[:i]
             search_path = self.cwd / Path(*search)
@@ -53,30 +62,28 @@ class script(object):
             script_py_str = ''.join([search_path.__str__(), ".py" ])
             script_py = Path(script_py_str)
 
-            print(">> Checking for script: {}".format(script_py.__str__()))
-
             if script_py.exists():
                 return script_py.absolute().__str__()
 
             # Is this a folder with index.py
             # eg, test for ..mpl.com/app/login/index.py
             index_py = search_path / 'index.py'
-
-            print(">> Checking for script: {}".format(index_py.__str__()))
-
             if index_py.exists():
                 return index_py.absolute().__str__()
 
 
-            # Parent folder "/" cant be a py file ("/.py") but can contain an
+            # Parent folder "/app/" cant be a py file ("/.py") but can contain an
             # index.py file ("/index.py") so if i==1 then we have to test for
-            # this final edge case.
+            # this final edge case. Note, application root is different to site
+            # route and needs a different edge test
             if i!=1: continue
 
             root_index_py = search_path.parent / 'index.py'
-            print(">> Checking final edge case {}".format(root_index_py.__str__()))
             if root_index_py.exists():
                 return root_index_py.absolute().__str__()
+
+        raise NotFound('Could not find matching site file')
+
 
 
     def get_module(self):

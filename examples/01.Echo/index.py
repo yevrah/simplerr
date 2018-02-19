@@ -6,7 +6,9 @@ def echo(request):
 
 @web('/echo/<msg>')
 def echo(request, msg):
-    return "Echo: {}".format(msg)
+    return "Echo from index: {}".format(msg)
+
+
 
 
 

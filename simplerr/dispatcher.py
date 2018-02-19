@@ -21,8 +21,6 @@ import importlib.util
 from .web import web
 from .script import script
 
-
-
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
@@ -153,10 +151,13 @@ class wsgi(object):
             evalex=True
         )
 
+        print('Shared Folder: {}'.format(path.join(path.dirname(self.cwd), 'shared')))
+
         return SharedDataMiddleware(
             self.app, {
-            '/shared':  path.join(path.dirname(__file__), 'shared')
-        })
+                # TODO: Remove Shared Middleware
+                '/shared':  path.join(self.cwd, 'shared')
+            })
 
     def serve(self):
         """Start a new development server."""
