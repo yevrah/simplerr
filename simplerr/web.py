@@ -118,12 +118,12 @@ class web(object):
 
         # Check to see if this is a peewee model and convert to
         # dict
-        if( isinstance(data, Model)):
+        if(isinstance(data, Model)):
             out = model_to_dict(out)
             data = out
 
 
-        if( isinstance(data, ModelSelect)):
+        if(isinstance(data, ModelSelect)):
             array_out = []
             for item in data:
                 array_out.append(model_to_dict(item))
@@ -165,6 +165,10 @@ class web(object):
         response = Response(out)
         response.headers['Content-Type'] = 'application/json'
         return response
+
+    @staticmethod
+    def response(data):
+        return Response(data)
 
     @staticmethod
     def template(cwd, template, data):
