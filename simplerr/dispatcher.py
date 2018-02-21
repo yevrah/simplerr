@@ -143,10 +143,8 @@ class wsgi(object):
 
         raise SiteNoteFoundError(
             self.site,
-            "Could not access folder at '{p1}' or '{p2}'",format(
-            p1=path_site.__str__(),
-            p2=path_with_cwd.__str__()
-        ))
+            "Could not access folder"
+        )
 
     def make_app(self):
         # Add CWD to search path, this is where project modules will be located

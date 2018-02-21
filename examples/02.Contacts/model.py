@@ -1,16 +1,19 @@
 from peewee import *
 
-#db = SqliteDatabase('./examples/02.Contacts/people.db')
-db = SqliteDatabase('people.db')
+db = SqliteDatabase('./site/quick_start/people.db')
 
 class Person(Model):
-    name = CharField()
-    birthday = DateField()
-    is_relative = BooleanField()
+    firstname = CharField()
+    surname = CharField()
 
     class Meta:
-        database = db # This model uses the "people.db" database.
+        database = db
 
 if __name__ == "__main__":
     db.connect()
     db.create_tables([Person])
+
+    # Add some data
+    Person(firstname="John", surname="Bob").save()
+    Person(firstname="Jane", surname="Bob").save()
+    Person(firstname="Michael", surname="Clark").save()

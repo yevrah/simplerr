@@ -27,7 +27,7 @@ from peewee import ModelSelect
 
 from playhouse.shortcuts import model_to_dict, dict_to_model
 
-
+import mimetypes
 
 
 # We need custom json_serial to handle date time - not supported
@@ -145,8 +145,11 @@ class web(object):
             file_path = Path(cwd) / Path(out)
             file = open(file_path.absolute().__str__(), 'rb')
             data = wrap_file(environ, file)
+
+            mtype = mimetypes.guess_type(file_path.__str__())[0]
+
             response = Response(data, direct_passthrough=True)
-            response.headers['Content-Type'] = 'text/html;charset=utf-8'
+            response.headers['Content-Type'] = '{};charset=utf-8'.format(mtype)
             return response
 
         # No template, just plain old string response

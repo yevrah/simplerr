@@ -1,9 +1,5 @@
 from simplerr.web import web
-
 import os
-
-os.sys.path.append("/Users/harvey/dev/simplerr.com/")
-
 
 @web('/app/')
 def echo_root(request):
