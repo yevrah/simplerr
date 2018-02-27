@@ -1,7 +1,8 @@
 from setuptools import setup
+import simplerr
 
 setup(name='simplerr',
-      version='0.1.3',
+      version=simplerr.__version__,
       description='The simple request web framework',
       url='https://github.com/yevrah/simplerr',
       author='Javier Woodhouse',
