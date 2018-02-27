@@ -42,4 +42,11 @@ def echo_form(request):
     """.format(msg)
 
 
+@web.filter('myupper')
+def myupper(input):
+    return input.upper()
 
+
+@web('/echo/filter/<msg>', template="/assets/filter.html")
+def echo_filter(request, msg):
+    return {'msg': msg}

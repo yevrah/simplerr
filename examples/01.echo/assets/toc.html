@@ -23,6 +23,7 @@
             <li class="list-group-item"><a href="#lazy">Lazy Routing</a></li>
             <li class="list-group-item"><a href="#lazya">Lazy Routing - Advanced</a></li>
             <li class="list-group-item"><a href="#lazya">Sending files</a></li>
+            <li class="list-group-item"><a href="#filters">Applying Filters</a></li>
           </ul>
         </div>
 
@@ -39,9 +40,9 @@
             <p>All the examples below can be run using `manage.py` using the
               following commands</p>
 
-<pre>
-./manage.py runserver --site ./examples/01.echo/
-</pre>
+            <pre>
+              ./manage.py runserver --site ./examples/01.echo/
+            </pre>
 
 
 
@@ -50,16 +51,15 @@
             plain text response, it will have very basic html that will link
             to this page.</p>
 
-<pre>
-# index.py - view at /
-from simplerr.web import web
+          <pre>
+            # index.py - view at /
+            from simplerr.web import web
 
-
-@web('/')
-def plain(request):
-    return """Hello from Echo index.py, click for
-              a &lt;a href="/TOC"&gt;TOC&lt;/a&gt;"""
-</pre>
+            @web('/')
+            def plain(request):
+                return """Hello from Echo index.py, click for
+                          a &lt;a href="/TOC"&gt;TOC&lt;/a&gt;"""
+          </pre>
 
 
 
@@ -67,13 +67,13 @@ def plain(request):
             <h3>Template Processing</h3><a name="template"></a>
             <p>Now we'll render a template, we specify the route and template file in the decorator, values are fed in from the return value.</p>
 
-<pre>
-# index.py - view at /TOC
-@web('/TOC', '/assets/toc.html')
-def template(request):
-    import simplerr
-    return {"version": simplerr.__version__}
-</pre>
+            <pre>
+              # index.py - view at /TOC
+              @web('/TOC', '/assets/toc.html')
+              def template(request):
+                  import simplerr
+                  return {"version": simplerr.__version__}
+            </pre>
 
 
 
@@ -81,12 +81,12 @@ def template(request):
             <h3>Passing Parameters</h3><a name="parameters"></a>
             <p>So far we have setup routes, not we need to see how we can pass through some basic data.</p>
 
-<pre>
-# index.py - view at /echo/Hello From Echo
-@web('/echo/&lt;msg&gt;')
-def echo(request, msg):
-    return "Echo from index: {}".format(msg)
-</pre>
+            <pre>
+              # index.py - view at /echo/Hello From Echo World
+              @web('/echo/&lt;msg&gt;')
+              def echo(request, msg):
+                  return "Echo from index: {}".format(msg)
+            </pre>
 
 
 
@@ -94,12 +94,12 @@ def echo(request, msg):
             <p>To retrieve query strings, access them from the
               `request.args['key']` dicitionary</p>
 
-<pre>
-# index.py - view at /echo/args?msg=Hello From Args
-@web('/echo/args')
-def echo_args(request):
-    return "Echo using args: {}".format(request.args['msg'])
-</pre>
+            <pre>
+              # index.py - view at /echo/args?msg=Hello From Args World
+              @web('/echo/args')
+              def echo_args(request):
+                  return "Echo using args: {}".format(request.args['msg'])
+            </pre>
 
 
 
@@ -107,27 +107,27 @@ def echo_args(request):
             <p>To retrieve query strings, access them from the
               `request.form['key']` dicitionary</p>
 
-<pre>
-# index.py - view at /echo/form
-@web('/echo/form')
-def echo_form(request):
-    msg = "[not submitted yet]"
+            <pre>
+              # index.py - view at /echo/form
+              @web('/echo/form')
+              def echo_form(request):
+                  msg = "[not submitted yet]"
 
-    if "msg" in request.form.keys():
-        msg = request.form["msg"]
+                  if "msg" in request.form.keys():
+                      msg = request.form["msg"]
 
-    return """
-    &lt;html&gt;
-    &lt;body&gt;
-     &lt;form method=post action=""&gt;
-      Message: &lt;input type="text" name="msg" placeholder="Enter msg value"/&gt;
-      &lt;input type="submit"&gt;
-      You typed in: "{}"
-     &lt;/form&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;
-    """.format(msg)
-</pre>
+                  return """
+                  &lt;html&gt;
+                  &lt;body&gt;
+                   &lt;form method=post action=""&gt;
+                    Message: &lt;input type="text" name="msg" placeholder="Enter msg value"/&gt;
+                    &lt;input type="submit"&gt;
+                    You typed in: "{}"
+                   &lt;/form&gt;
+                  &lt;/body&gt;
+                  &lt;/html&gt;
+                  """.format(msg)
+            </pre>
 
 
 
@@ -149,26 +149,24 @@ def echo_form(request):
             <p>As an example, lets create a file called api.py to handle all
               our json calls</p>
 
-<pre>
-# api.py - view at /api
-#        - json at /api/echo/Hello From API
-from simplerr.web import web
+            <pre>
+              # api.py - view at /api
+              #        - json at /api/echo/Hello From API
+              from simplerr.web import web
 
+              @web('/api/')
+              def docs(request):
+                  return """
+                  &lt;pre&gt;
+                      This is a basic echo json response, for example, make a request to
+                      '/api/echo/Hello World' to have your message reflected back.
+                  &lt;/pre&gt;
+                  """
 
-@web('/api/')
-def docs(request):
-    return """
-    &lt;pre&gt;
-        This is a basic echo json response, for example, make a request to
-        '/api/echo/Hello World' to have your message reflected back.
-    &lt;/pre&gt;
-    """
-
-
-@web('/api/echo/&lt;msg&gt;')
-def echo_json(request, msg):
-    return {'msg': msg}
-</pre>
+              @web('/api/echo/&lt;msg&gt;')
+              def echo_json(request, msg):
+                  return {'msg': msg}
+            </pre>
 
 
 
@@ -180,64 +178,109 @@ def echo_json(request, msg):
               this case create a sub folder for the project, `api-v2` and in
               our example add the folling files to the folder</p>
 
-<pre>
-# api-v2/users.py - json at /api-v2/pets/1
-from simplerr.web import web
+            <pre>
+              # api-v2/users.py - json at /api-v2/pets/1
+              from simplerr.web import web
 
-@web('/api-v2/users/&lt;id&gt;')
-def get(request, id):
-    return {'id': id, 'name': 'John Doe'}
+              @web('/api-v2/users/&lt;id&gt;')
+              def get(request, id):
+                  return {'id': id, 'name': 'John Doe'}
+            </pre>
 
+            <pre>
+              # api-v2/pets.py - json at /api-v2/users/1
+              from simplerr.web import web
 
-# api-v2/pets.py - json at /api-v2/users/1
-from simplerr.web import web
-
-@web('/api-v2/pets/&lt;id&gt;')
-def get(request, id):
-    return {'id': id, 'name': 'Fido'}
-
-</pre>
+              @web('/api-v2/pets/&lt;id&gt;')
+              def get(request, id):
+                  return {'id': id, 'name': 'Fido'}
+            </pre>
 
 
 
 
             <h3>Sending files</h3><a name="files"></a>
-            <p>Sending files can be accomplished by setting a route with `file=True`, the return value is expected to be a file path. Follow the example below to create a css file and use it within a route.</p>
-
-<pre>
-# assets/echo.css - view at /static/echo.css
-p { font-size: 42px; }
-
-# static.py - view at /static/test
-from simplerr.web import web
-
-@web('/static/&lt;path:file&gt;', file=True)
-def file(request, file):
-    return "./assets/" + file
+            <p>Sending files can be accomplished by setting a route with
+              `file=True`, the return value is expected to be a file path.
+              Follow the example below to create a css file and use it within a
+              route.</p>
 
 
-@web('/static/test')
-def withcss(request):
+            <pre>
+              /* assets/echo.css - view at /static/echo.css */
+              p { font-size: 42px; }
+            </pre>
 
-    return """
-    &lt;html&gt;
-    &lt;head&gt;
-        &lt;link rel="stylesheet" href="/static/echo.css"&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;p&gt;This should be big text!&lt;/p&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;
-    """
-</pre>
+            <pre>
+              # static.py - view at /static/test
+              from simplerr.web import web
+
+              @web('/static/&lt;path:file&gt;', file=True)
+              def file(request, file):
+                  return "./assets/" + file
 
 
+              @web('/static/test')
+              def withcss(request):
 
+                  return """
+                  &lt;html&gt;
+                  &lt;head&gt;
+                      &lt;link rel="stylesheet" href="/static/echo.css"&gt;
+                  &lt;/head&gt;
+                  &lt;body&gt;
+                      &lt;p&gt;This should be big text!&lt;/p&gt;
+                  &lt;/body&gt;
+                  &lt;/html&gt;
+                  """
+            </pre>
+
+
+
+
+            <h3>Applying Filters</h3><a name="filters"></a>
+
+            <p>You may find a need to create your own custom filters, you can do this by using the `@web.filter('name')` decorator such as in the example below</p>
+
+            <pre>
+              # echo.py - view at /echo/filter/Hello From Filter World
+              @web.filter('myupper')
+              def myupper(input):
+                  return input.upper()
+
+
+              @web('/echo/filter/<msg>', template="/assets/filter.html")
+              def echo_filter(request, msg):
+                  return {'msg': msg}
+            </pre>
+
+            {% raw %}
+            <pre>
+              &lt;!-- assets/filter.html --&gt;
+              Hello from {{msg | myupper}}
+            </pre>
+            {% endraw %}
 
 
 
           </div>
       </div>
     </div>
+
+
+    <script>
+      // De-Indent Source Code, thanks to homam @ https://stackoverflow.com/questions/17257200/removing-leading-whitespace-from-indented-html-source-in-pre-code-tags
+      [].forEach.call(document.querySelectorAll('pre'), function($pre) {
+        var lines = $pre.textContent.split('\n');
+        var matches;
+        var indentation = (matches = /^\s+/.exec(lines[0])) != null ? matches[0] : null;
+        if (!!indentation) {
+          lines = lines.map(function(line) {
+            return line.replace(indentation, '');
+          });
+          return $pre.textContent = lines.join('\n').trim();
+        }
+      });
+    </script>
   </body>
 </html>

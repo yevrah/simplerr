@@ -56,6 +56,7 @@ def json_serial(obj):
 class web(object):
     # Is this a potential memorry leak?
     destinations = []
+    filters = {}
     template_engine = None
 
 
@@ -174,9 +175,36 @@ class web(object):
         return Response(data)
 
     @staticmethod
+    def filter(name):
+
+        def wrap(fn):
+            # Add to filters dict
+            web.filters[name] = fn
+
+            def decorated(*args, **kwargs):
+                fn(*args, **kwargs)
+            return decorated
+        return wrap
+
+
+        @functools.wraps(fn)
+        def decorated(request, *args, **kwargs):
+            return fn(request, *args, **kwargs)
+
+        # Return pretty much unmodified, we really only
+        # wanted this to index it into filters dict
+        return decorated
+
+    @staticmethod
     def template(cwd, template, data):
         # This maye have to be removed if CWD proves to be mutable per request
         web.template_engine = web.template_engine or T(cwd)
+
+        # Add any registered filters
+        for filter in web.filters.keys():
+            web.template_engine.env.filters[filter] = web.filters[filter]
+
+        # Return Rendering
         return web.template_engine.render(template, data)
 
     @staticmethod

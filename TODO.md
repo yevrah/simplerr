@@ -7,6 +7,7 @@ Simplerr Development.
 
 ## 1. Fix issues when errors occur
 
+
 ## 2. Bug where by responses slow down after an error, test errors with 1 thread to replicate
 
 ## 3. Bug in json posts
@@ -42,6 +43,8 @@ def static(request, file):
 See example package implementations below
  - http://veekaybee.github.io/2017/09/26/python-packaging/?utm_source=mybridge&utm_medium=blog&utm_campaign=read_more for a workflow.
  - https://milkr.io/kfei/5-common-patterns-to-version-your-Python-package
+
+## 8. Ability to easily add filters to template engine
 
 Release 0.17
 ============
