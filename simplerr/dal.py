@@ -1,6 +1,7 @@
 import sys
 import json
 
+
 class dba(object):
 
     @staticmethod
@@ -19,7 +20,6 @@ class dba(object):
             out = []
 
         return out
-
 
     @staticmethod
     def _row_to_dict(cursor, row):

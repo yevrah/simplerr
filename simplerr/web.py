@@ -46,7 +46,6 @@ def json_serial(obj):
     raise TypeError ("Type %s not serializable" % type(obj))
 
 
-
 #  _   _   _   _  _  _   _ _ _  ___  ___   ___  _  _ _  ___  _  _  _  __
 # | \_/ | / \ | || \| | | | | || __|| o ) | o \/ \| | ||_ _|| || \| |/ _|
 # | \_/ || o || || \\ | | V V || _| | o \ |   ( o ) U | | | | || \\ ( |_n
@@ -134,6 +133,9 @@ class web(object):
 
         # Template expected, attempt render
         if(template != None):
+            # Add request to data
+            data = data or {}
+            data['request'] = request
             out = web.template(cwd, template, data)
             response = Response(out)
             response.headers['Content-Type'] = 'text/html;charset=utf-8'

@@ -23,7 +23,6 @@ from .script import script
 
 import sys
 
-
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
@@ -42,7 +41,6 @@ class SiteNoteFoundError(Error):
         self.message = message
 
 
-
 #
 #  _   _   _   _  _  _   _ _ _ __  __  _
 # | \_/ | / \ | || \| | | | | / _|/ _|| |
@@ -55,6 +53,21 @@ class SiteNoteFoundError(Error):
 # |_|  |_|\\_n_||_| |_||___| \_n_/ \_/|_|\\_|\\
 #
 #
+
+class WebRequest(Request):
+    """Adds support for JSON and other niceties"""
+
+    @property
+    def json(self):
+        # TODO: need to cache this otherwise each call runs json.loads
+        try:
+            data=self.data
+            out=json.loads(data, encoding=charset)
+        except ValueError as e:
+            out=None
+        return out
+
+
 class dispatcher(object):
 
     def __init__(self, cwd):
@@ -62,15 +75,15 @@ class dispatcher(object):
 
 
     def dispatch_request(self, request, environ):
-        print("==========================================")
-        print("Request path: {}".format(request.path))
-        print("Request host: {}".format(request.host))
-        print("Request url: {}".format(request.url))
-        print("Request method: {}".format(request.method))
-        print("Request URL Params: {}".format(request.args.keys()))
-        print("Request Form: {}".format(request.form.keys()))
-        print("Request Files: {}".format(request.files.keys()))
-        print("Request Headers: {}".format(request.headers.keys()))
+        # print("==========================================")
+        # print("Request path: {}".format(request.path))
+        # print("Request host: {}".format(request.host))
+        # print("Request url: {}".format(request.url))
+        # print("Request method: {}".format(request.method))
+        # print("Request URL Params: {}".format(request.args.keys()))
+        # print("Request Form: {}".format(request.form.keys()))
+        # print("Request Files: {}".format(request.files.keys()))
+        # print("Request Headers: {}".format(request.headers.keys()))
 
 
         # Routes management
@@ -96,16 +109,16 @@ class dispatcher(object):
         # response.data += b" Thanks for Visiting!"
         # response.headers['Content-Type'] = 'text/plain'
         # response.set_cookie('name', 'value')
-        print("Response Status: {}".format(response.status))
-        print("Response Code: {}".format(response.status_code))
-        print("Response Length: {}".format(response.content_length))
-        print("")
-        print("")
+        # print("Response Status: {}".format(response.status))
+        # print("Response Code: {}".format(response.status_code))
+        # print("Response Length: {}".format(response.content_length))
+        # print("")
+        # print("")
 
         return response  # return web.process(route).
 
     def wsgi_app(self, environ, start_response):
-        request = Request(environ)
+        request = WebRequest(environ)
         response = self.dispatch_request(request, environ)
         return response(environ, start_response)
 
@@ -117,8 +130,9 @@ class dispatcher(object):
 class wsgi(object):
 
     def __init__(self, site, hostname, port, use_reloader=True,
-                  use_debugger=True, use_evalex=True, threaded=True,
+                  use_debugger=False, use_evalex=False, threaded=True,
                   processes=1):
+
         self.site = site
         self.hostname = hostname
         self.port = port
@@ -127,9 +141,13 @@ class wsgi(object):
         self.use_evalex = use_evalex
         self.threaded = threaded
         self.processes = processes
-        self.middleware = None
+
+        self.app = None
 
         self.cwd = self.make_cwd()
+
+        # Add CWD to search path, this is where project modules will be located
+        sys.path.append( self.cwd.absolute().__str__() )
 
     def make_cwd(self):
         path_site = Path(self.site)
@@ -147,32 +165,28 @@ class wsgi(object):
         )
 
     def make_app(self):
-        # Add CWD to search path, this is where project modules will be located
-        sys.path.append( self.cwd.absolute().__str__() )
+        self.app = dispatcher(self.cwd.absolute().__str__())
+        return self.app
 
-
+    def make_app_debug(self):
         self.app = DebuggedApplication(
             dispatcher(self.cwd.absolute().__str__()),
             evalex=True
         )
 
-        return SharedDataMiddleware(
-            self.app, {
-                # TODO: Remove Shared Middleware
-                # '/shared':  path.join(self.cwd, 'shared')
-            })
+        return self.app
 
     def serve(self):
         """Start a new development server."""
 
-        self.middleware = self.make_app()
+        self.make_app_debug()
 
         """Generate SSL Keys, not currently used, needs some improvements"""
         # (crt, key) = make_ssl_devcert('/tmp/', host='localhost')
 
         run_simple(self.hostname,
                    self.port,
-                   self.middleware,
+                   self.app,
                    use_reloader=self.use_reloader,
                    use_debugger=self.use_debugger,
                    use_evalex=self.use_evalex,

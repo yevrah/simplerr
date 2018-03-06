@@ -17,7 +17,7 @@ def cli(): pass
 @click.option('-h', '--hostname', type=str, default='localhost', help="localhost")
 @click.option('-p', '--port', type=int, default=5000, help="5000")
 @click.option('--reloader', is_flag=True, default=True)
-@click.option('--debugger', is_flag=True)
+@click.option('--debugger', is_flag=True, default=False)
 @click.option('--evalex', is_flag=True, default=False)
 @click.option('--threaded', is_flag=True)
 @click.option('--processes', type=int, default=1, help="1")
