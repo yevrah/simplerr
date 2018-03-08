@@ -1,7 +1,7 @@
 Summary
 =======
 
-This is the intial project to kickstart the LoanKit version 3.0 (LK3) development. Please read the instructions below to get started
+Quick Start introduction to simplerr
 
 
 1. Installation

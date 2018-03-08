@@ -1,7 +1,8 @@
-from simplerr.web import web
+from simplerr import web
 
 
 @web('/')
+@web('/home')
 def plain(request):
     return """Hello from Echo index.py, click for a <a href="/TOC">TOC</a>"""
 
@@ -22,12 +23,8 @@ def echo_args(request):
     return "Echo using args: {}".format(request.args['msg'])
 
 
-@web('/echo/form')
+@web('/echo/form', methods=['GET'])
 def echo_form(request):
-    msg = "[not submitted yet]"
-
-    if "msg" in request.form.keys():
-        msg = request.form["msg"]
 
     return """
     <html>
@@ -35,8 +32,19 @@ def echo_form(request):
      <form method=post action="">
       Message: <input type="text" name="msg" placeholder="Enter msg value"/>
       <input type="submit">
-      You typed in: "{}"
      </form>
+    </body>
+    </html>
+    """
+
+@web('/echo/form', methods=['POST'])
+def echo_form_post(request):
+    msg = request.form["msg"]
+
+    return """
+    <html>
+    <body>
+      You typed in: "{}"
     </body>
     </html>
     """.format(msg)

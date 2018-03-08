@@ -1,6 +1,5 @@
 from simplerr.web import web
 
-
 @web('/api')
 def docs(request):
     return """
@@ -9,7 +8,6 @@ def docs(request):
         '/api/echo/Hello World' to have your message reflected back.
     </pre>
     """
-
 
 @web('/api/echo/<msg>')
 def echo_json(request, msg):

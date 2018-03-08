@@ -53,23 +53,114 @@ def json_serial(obj):
 #
 
 class web(object):
-    # Is this a potential memorry leak?
+    """Primary routing decorator and helpers
+
+    The `web()` decorator traps all routes and add them to a list, which is
+    passed to werkzeugs `werkzeug.routing.Map()` for find the current method to
+    run for the matched route.
+
+    Decorator Format
+    ==================
+
+    The `web()` decorator (routes) wraps the `werkzueg.routing.Rule()` format
+    `<converter(arguments):name>`. 
+
+    In addition to the `Route()` parameters, `web()` also add's a `template` to
+    use in rendering that endpoint.
+
+    Routes are used in the following way:
+
+    ::
+
+        @web('/user/<int:id>', 'user.html')
+        def get_user(request, id):
+            # The return value will be used
+            # as the context for the template
+            return {'id':id, 'name':'John Doe'}
+
+    Route Parameters
+    ----------------
+
+    Routes in simplerr wrap the `Rule()` class in werkzeug - highlighted below
+
+    ::
+
+        class werkzeug.routing.Rule(
+            string,
+            defaults=None,          # Not yet implemented
+            subdomain=None,         # Not yet implemented
+            methods=None,
+            build_only=False,       # Not yet implemented
+            endpoint=None,          # Assigned to same value as first string param, eg '/index'
+            strict_slashes=None,    # Not yet implemented
+            redirect_to=None,       # Not yet implemented
+            alias=False,            # Not yet implemented
+            host=None               # Not yet implemented
+            )
+
+
+    The 'web()' decorator has the following signature.
+
+    ::
+
+        class simplerr.web(
+            string,         # Route
+            string=None,    # Template to combine `return` value as context
+            methods=None
+        )
+
+
+    string
+        Route strings are URL paths which optionally use placeholders for
+        arguments using the following format <converter(arguments):name>.
+
+    string
+        Path to the template to be rendered, the return value is supplied as the
+        template context. In addition, the `request` object is also available under
+        `request`.
+
+    endpoint
+        The endpoint for this rule. This can be anything. A reference to a
+        function, a string, a number etc. The preferred way is using a string
+        because the endpoint is used for URL generation.
+
+    methods
+        A list of http methods to accept, defaults to `None` which accepts all.
+        Otherwise sepcify `'GET'`, `'POST'`, `'PUT'`, `'DELETE'`. Note that
+        `'HEAD'` is accepeted on `'GET'` requests.
+
+
+    Footnotes
+    =========
+
+    .. [1] Werkzeug Rule() details at http://werkzeug.pocoo.org/docs/0.14/routing/#rule-format
+
+    """
+
+    #TODO: Is this a potential memorry leak?
     destinations = []
     filters = {}
     template_engine = None
 
 
-    def __init__(self, route="/", template=None, methods=["GET"], endpoint=None, file=False):
+    def __init__(self, route="/", template=None, methods=None, endpoint=None, file=False):
         self.route = route
         self.template = template
         self.methods = methods
-        self.endpoint = endpoint or route
+        self.endpoint = endpoint
         self.fn = None
         self.args = None # to be set when matched() is called
         self.file = file
 
 
     def __call__(self, fn):
+        # A quick cleanup first, if no endpoint was specified we need to set it
+        # to the view function
+        self.endpoint = self.endpoint or fn.__name__ # Default endpoint name if none provided.
+
+        print('View Function for {}: {}'.format(self.route, fn.__name__))
+
+        # Proceed to create decorator
         self.fn = fn
 
         # add this function into destinations
@@ -93,7 +184,8 @@ class web(object):
             index[item.endpoint] = item
 
             # Create the rule and add it tot he map
-            rule = Rule(item.route, endpoint=item.endpoint)
+            print('Item: {}, endpoint: {}, methods: {}'.format(item.route.__str__(), item.endpoint, item.methods.__str__()))
+            rule = Rule(item.route, endpoint=item.endpoint, methods=item.methods)
             map.add(rule)
 
         # Check for match

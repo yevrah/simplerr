@@ -193,8 +193,3 @@ class wsgi(object):
                    threaded=self.threaded,
                    processes=self.processes) # , ssl_context=(crt, key))
 
-
-### Main form - nothing happens at the moment
-if __name__ == '__main__':
-    pass
-

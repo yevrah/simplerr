@@ -19,7 +19,8 @@
             <li class="list-group-item"><a href="#parameters">Passing Parameters</a></li>
             <li class="list-group-item"><a href="#lazy">Lazy Routing</a></li>
             <li class="list-group-item"><a href="#query">Handling Query Strings</a></li>
-            <li class="list-group-item"><a href="#forms">Handling Form Values</a></li>
+            <li class="list-group-item"><a href="#form">Handling Form Values</a></li>
+            <li class="list-group-item"><a href="#form2">Improved Form Handling</a></li>
             <li class="list-group-item"><a href="#lazy">Lazy Routing</a></li>
             <li class="list-group-item"><a href="#lazya">Lazy Routing - Advanced</a></li>
             <li class="list-group-item"><a href="#lazya">Sending files</a></li>
@@ -141,6 +142,62 @@
                   &lt;/html&gt;
                   """.format(msg)
             </pre>
+
+
+            <h3>Improved Form Handling</h3><a name="form2"></a>
+            <p>A common operation is to accept a form post, and re-render the page. In the below example we will create one view for `GET`, and another to handle posted data `POST`. In this situation, all udpates, deletes, etc will be handled by the correct verb, and simply return the value from the `GET` method.</p>
+
+            <pre>
+              # index.py - view at /echo/db
+              @web('/item', methods=['GET'])
+              def item(request, flash=''):
+                  &lt;html&gt;
+                  &lt;body&gt;
+                   &lt;form method=post action="/item/add"&gt;
+                   &lt;h1 id='flash'&gt;{}&lt;h1&gt;
+                    Value: &lt;input type="text" name="item" id="item" placeholder="Enter new item"/&gt;
+                    &lt;button onclick="del()"&gt;&lt;Delete&lt;/;button&gt;
+                    &lt;button onclick="update()"&gt;&lt;Update&lt;/button&gt;
+                    &lt;input type="submit"&gt;
+                   &lt;/form&gt;
+
+                   &lt;script src="https://code.jquery.com/jquery-3.3.1.min.js"&gt;
+                   &lt;script&gt;
+                   function flash(result) {$('#flash').html(result.msg)};
+                   function del() {
+                      $.ajax({
+                        url: '/item/delete/' + $('#item').val(), 
+                        type: 'DELETE', 
+                        success: flash(result) });
+                    }
+
+                   function update() {
+                      $.ajax({
+                        url: '/item/update/' + $('#item').val(), 
+                        type: 'PUT',
+                        success: flash(result) });
+                    }
+                   &lt;/script&gt;
+
+                  &lt;/body&gt;
+                  &lt;/html&gt;
+                  """.format(flash)
+
+              @web('/item/add', methods=['POST'])
+              def item_add(request):
+                return echo_db(request, 'Added value {}'.format(request.formp['item']))
+
+              @web('/item/update/<item>', methods=['PUT'])
+              def item_add(request, item):
+                return {'flash': 'Updated item: {}'.format(item) }
+
+              @web('/item/delete/<item>', methods=['DELETE'])
+              def item_add(request, item):
+                return {'flash': 'Deleted item: {}'.format(item) }
+            </pre>
+
+
+
 
 
 

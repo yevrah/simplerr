@@ -1,3 +1,3 @@
-__version__ = "0.15"
+__version__ = "0.15.1"
 
-#from web import web
+from .web import web

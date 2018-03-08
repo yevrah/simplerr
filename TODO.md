@@ -5,6 +5,12 @@ The 0.16 release aims to stabilise basic web routing and functionality, as well
 as provide adequate documentation to get developers started in the world of
 Simplerr Development.
 
+## 0. Basic features still missing
+
+[ ] Easy file upload
+[ ] Easy access to request and response objects
+
+
 ## 1. Fix issues when errors occur
 
 [x] 1.1 Test when not in debug mode - currently not able to disable debug mode from manage.py
