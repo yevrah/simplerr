@@ -20,8 +20,10 @@ import importlib.util
 
 from .web import web
 from .script import script
+from .session import MemorySessionStore
 
 import sys
+import json
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -54,79 +56,93 @@ class SiteNoteFoundError(Error):
 #
 #
 
+class WebEvents(object):
+    """Web Request object, extends Request object.  """
+
+    def __init__(self):
+        self.pre_request = []
+        self.post_request = []
+
+    # Pre-request subscription
+    def on_pre_response(self, fn):
+        self.pre_request.append(fn)
+
+    def off_pre_response(self, fn):
+        """Remove from pre_request"""
+        self.pre_request.remove(fn)
+
+    def fire_pre_response(self, request):
+        for fn in self.pre_request:
+            fn(request)
+
+    # Post-Request subscription management
+    def on_post_response(self, fn):
+        self.post_request.append(fn)
+
+    def off_post_response(self, fn):
+        """Remove from pre_request"""
+        self.post_request.remove(fn)
+
+    def fire_post_response(self, request, response):
+        for fn in self.post_request:
+            fn(request, response)
+
+
 class WebRequest(Request):
-    """Adds support for JSON and other niceties"""
+    """Web Request object, extends Request object.  """
+
+    def __init__(self, *args, **kwargs):
+        super(WebRequest, self).__init__(*args, **kwargs)
+        self.view_events = WebEvents()
 
     @property
     def json(self):
+        """Adds support for JSON and other niceties"""
         # TODO: need to cache this otherwise each call runs json.loads
+        # TODO: Can we use werkzeug JSONRequestMixin?
+        #       see https://github.com/pallets/werkzeug/blob/master/werkzeug/contrib/wrappers.py#L44
         try:
-            data=self.data
-            out=json.loads(data, encoding=charset)
+            data = self.data
+            out = json.loads(data, encoding="utf8")
         except ValueError as e:
-            out=None
+            out = None
         return out
 
 
 class dispatcher(object):
 
-    def __init__(self, cwd):
+    def __init__(self, cwd, global_events):
         self.cwd = cwd
+        self.global_events = global_events
 
-
-    def dispatch_request(self, request, environ):
-        # print("==========================================")
-        # print("Request path: {}".format(request.path))
-        # print("Request host: {}".format(request.host))
-        # print("Request url: {}".format(request.url))
-        # print("Request method: {}".format(request.method))
-        # print("Request URL Params: {}".format(request.args.keys()))
-        # print("Request Form: {}".format(request.form.keys()))
-        # print("Request Files: {}".format(request.files.keys()))
-        # print("Request Headers: {}".format(request.headers.keys()))
-
-
-        # Routes management
-        # url_map = Map([
-        #     Rule('/', endpoint='/'),
-        #     Rule('/index', endpoint='index'),
-        #     Rule('/echo/<echo>', endpoint='def-echo'),
-        #     Rule('/favicon.ico', endpoint='favicon')
-        # ])
-        #
-        # urls = url_map.bind_to_environ(environ)
-        # endpoint, args = urls.match()
-
-        sc = script(self.cwd, request.path)
-        module = sc.get_module()
-
-        response = web.process(request, environ, self.cwd)
-
-
-        ## Response section
-
-        # response = Response('Hello World!')
-        # response.data += b" Thanks for Visiting!"
-        # response.headers['Content-Type'] = 'text/plain'
-        # response.set_cookie('name', 'value')
-        # print("Response Status: {}".format(response.status))
-        # print("Response Code: {}".format(response.status_code))
-        # print("Response Length: {}".format(response.content_length))
-        # print("")
-        # print("")
-
-        return response  # return web.process(route).
-
-    def wsgi_app(self, environ, start_response):
+    def __call__(self, environ, start_response):
+        """This methods provides the basic call signature required by WSGI"""
         request = WebRequest(environ)
         response = self.dispatch_request(request, environ)
         return response(environ, start_response)
 
-    def __call__(self, environ, start_response):
-        return self.wsgi_app(environ, start_response)
+    def dispatch_request(self, request, environ):
+
+        # Get view script and view module
+        sc = script(self.cwd, request.path)
+        view_module = sc.get_module()
+
+        # Fire Pre Response Events
+        self.global_events.fire_pre_response(request)
+        request.view_events.fire_pre_response(request)
+
+        # Process Response, and get payload
+        response = web.process(request, environ, self.cwd)
+
+        # Done, fire post response events
+        request.view_events.fire_post_response(request, response)
+        self.global_events.fire_post_response(request, response)
+
+        # There should be no more user code after this being run
+        return response  # return web.process(route).
 
 
-### WSGI Processesor
+### WSGI Server
 class wsgi(object):
 
     def __init__(self, site, hostname, port, use_reloader=True,
@@ -144,7 +160,23 @@ class wsgi(object):
 
         self.app = None
 
+
+        # TODO: Need to update interface to handle these
+        self.session_store = MemorySessionStore()
+
         self.cwd = self.make_cwd()
+
+
+        # Add Relevent Web Events
+        # NOTE: Events created at this level should fire static events that
+        # are fired on every request and will share application data, all other
+        # events should be reset between views. Make sure to not use the global
+        # object unless you want the event called at every view.
+        self.global_events = WebEvents()
+
+        # Add some key events
+        self.global_events.on_pre_response(self.session_store.pre_response)
+        self.global_events.on_post_response(self.session_store.post_response)
 
         # Add CWD to search path, this is where project modules will be located
         sys.path.append( self.cwd.absolute().__str__() )
@@ -165,12 +197,13 @@ class wsgi(object):
         )
 
     def make_app(self):
-        self.app = dispatcher(self.cwd.absolute().__str__())
+        self.app = dispatcher(self.cwd.absolute().__str__(), self.global_events)
         return self.app
 
     def make_app_debug(self):
         self.app = DebuggedApplication(
-            dispatcher(self.cwd.absolute().__str__()),
+            #dispatcher(self.cwd.absolute().__str__()),
+            self.make_app(),
             evalex=True
         )
 

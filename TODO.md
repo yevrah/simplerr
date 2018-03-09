@@ -9,6 +9,13 @@ Simplerr Development.
 
 [ ] Easy file upload
 [ ] Easy access to request and response objects
+[ ] Url for functionality  [1]
+
+
+[1] Will need to use same syntax as blueprints, full relative/reference to module. Eg for a file in;
+
+- /index view method home() - link('home') is fine
+- /api/users, method add() - link('api.users.add')
 
 
 ## 1. Fix issues when errors occur
@@ -67,6 +74,8 @@ See example package implementations below
  - https://milkr.io/kfei/5-common-patterns-to-version-your-Python-package
 
 ## 8. Ability to easily add filters to template engine
+
+## 9. Review introduction of __web__.py file to register routes
 
 Release 0.17
 ============

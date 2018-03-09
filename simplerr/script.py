@@ -90,10 +90,6 @@ class script(object):
         # https://www.blog.pythonlibrary.org/2016/05/27/python-201-an-intro-to-importlib/
         # https://docs.python.org/3/library/importlib.html
         script = self.get_script()
-
-        print(">> getting script >> {}".format(script))
-
-
         spec = importlib.util.spec_from_file_location("", script)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

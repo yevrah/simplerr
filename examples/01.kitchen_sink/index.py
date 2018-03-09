@@ -50,6 +50,26 @@ def echo_form_post(request):
     """.format(msg)
 
 
+class storeme():
+    def __init__(self, name):
+        self.name = name
+
+@web('/echo/session/set')
+def session_set(request):
+
+    request.session['Hello'] = "Session World!"
+
+    sme = storeme('John Doe')
+    request.session['testobj'] = sme
+
+
+    return "Added session Hello: {}".format( request.session['Hello'] )
+
+@web('/echo/session/get')
+def session_get(request):
+    smeget = request.session['testobj']
+    return "Getting session Hello: {}, {}".format( request.session['Hello'], smeget.name )
+
 @web.filter('myupper')
 def myupper(input):
     return input.upper()
@@ -58,3 +78,7 @@ def myupper(input):
 @web('/echo/filter/<msg>', template="/assets/filter.html")
 def echo_filter(request, msg):
     return {'msg': msg}
+
+@web('/favicon.ico')
+def favicon(request):
+    return ""

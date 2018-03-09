@@ -52,6 +52,8 @@ def json_serial(obj):
 # |_| |_||_n_||_||_|\_|  \_n_/ |___||___/ |_|\\\_/|___| |_| |_||_|\_|\__/
 #
 
+
+
 class web(object):
     """Primary routing decorator and helpers
 
@@ -158,8 +160,6 @@ class web(object):
         # to the view function
         self.endpoint = self.endpoint or fn.__name__ # Default endpoint name if none provided.
 
-        print('View Function for {}: {}'.format(self.route, fn.__name__))
-
         # Proceed to create decorator
         self.fn = fn
 
@@ -184,7 +184,6 @@ class web(object):
             index[item.endpoint] = item
 
             # Create the rule and add it tot he map
-            print('Item: {}, endpoint: {}, methods: {}'.format(item.route.__str__(), item.endpoint, item.methods.__str__()))
             rule = Rule(item.route, endpoint=item.endpoint, methods=item.methods)
             map.add(rule)
 
