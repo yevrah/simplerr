@@ -6,10 +6,11 @@ from os import path
 from threading import Thread
 from werkzeug.wrappers import Request, Response
 from werkzeug.wsgi import SharedDataMiddleware, wrap_file
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException, NotFound, abort
 from werkzeug.debug import DebuggedApplication
 from werkzeug.serving import make_ssl_devcert
 from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
+from werkzeug.utils import redirect as wz_redirect
 
 from jinja2 import Environment, FileSystemLoader, Template
 
@@ -299,6 +300,15 @@ class web(object):
 
         # Return Rendering
         return web.template_engine.render(template, data)
+
+
+    @staticmethod
+    def redirect(location, code=302, Response=None):
+        return wz_redirect(location, code, Response)
+
+    @staticmethod
+    def abort(code=404):
+        return abort(code)
 
     @staticmethod
     def all():

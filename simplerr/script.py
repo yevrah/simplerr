@@ -15,6 +15,28 @@ import os
 import sys
 
 
+"""
+TODO: Review werkzeug.utils.find_modules
+
+# werkzeug.utils.find_modules(import_path, include_packages=False, recursive=False)
+
+Finds all the modules below a package. This can be useful to automatically
+import all views / controllers so that their metaclasses / function decorators
+have a chance to register themselves on the application.
+
+Packages are not returned unless include_packages is True. This can also
+recursively list modules but in that case it will import all the packages to
+get the correct load path of that module.
+
+Parameters:
+    - import_path – the dotted name for the package to find child modules.
+    - include_packages – set to True if packages should be returned, too.
+    - recursive – set to True if recursion should happen.
+Returns:
+    - generator
+
+"""
+
 class script(object):
 
     # Set path to root of project

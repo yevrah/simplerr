@@ -37,6 +37,8 @@ def echo_form(request):
     </html>
     """
 
+
+
 @web('/echo/form', methods=['POST'])
 def echo_form_post(request):
     msg = request.form["msg"]
@@ -62,7 +64,6 @@ def session_set(request):
     sme = storeme('John Doe')
     request.session['testobj'] = sme
 
-
     return "Added session Hello: {}".format( request.session['Hello'] )
 
 @web('/echo/session/get')
@@ -78,6 +79,15 @@ def myupper(input):
 @web('/echo/filter/<msg>', template="/assets/filter.html")
 def echo_filter(request, msg):
     return {'msg': msg}
+
+
+@web('/redirect')
+def redirect(request):
+    return web.redirect('http://google.com')
+
+@web('/abort')
+def redirect(request):
+    return web.abort()
 
 @web('/favicon.ico')
 def favicon(request):

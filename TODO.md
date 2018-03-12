@@ -8,15 +8,7 @@ Simplerr Development.
 ## 0. Basic features still missing
 
 [ ] Easy file upload
-[ ] Easy access to request and response objects
-[ ] Url for functionality  [1]
-
-
-[1] Will need to use same syntax as blueprints, full relative/reference to module. Eg for a file in;
-
-- /index view method home() - link('home') is fine
-- /api/users, method add() - link('api.users.add')
-
+[x] Easy access to request and response objects
 
 ## 1. Fix issues when errors occur
 
@@ -77,8 +69,58 @@ See example package implementations below
 
 ## 9. Review introduction of __web__.py file to register routes
 
+## 10. Improved routing grammar
+
+Target grammar will be:
+
+  @web('/src/abc', '/templates/somefile.html', POST, GET)
+  @web('/src/abc', POST)
+
+Implementation will follow the syntax below
+
+
+    # methods.py
+    class Method(object):
+
+        def __call__(self, method):
+            self.method
+
+    # Export these classes from method.py
+    GET = Method('GET')
+    POST = Method('POST')
+    DELETE = Method('DELETE')
+    PUT = Method('PUT')
+
+
+## 11. Improved authentication grammar
+
+    @web.auth()
+    def auth_default(request):
+      # Auth checks go here
+
+
+    # Override
+    @web('/index', auth=None)
+    def public_page(request):
+      # Some public method
+
+## 12. Url for functionality  [1]
+
+
+Will need to use same syntax as flask blueprints, full relative/reference to module. Eg for a file in;
+
+- /index view method home() - link('home') is fine
+- /api/users, method add() - link('api.users.add')
+
+
 Release 0.17
 ============
+
+- Review livereload for runnserver
+  - https://github.com/lepture/python-livereload
+  - Use to rebuild docs
+  - Run the wsgi instance
+  - Can we inject livereload.js into reponse when <html> is present?
 
 - Email handling
   - Sync with imap/pop accounts
