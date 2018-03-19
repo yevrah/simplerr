@@ -44,7 +44,93 @@ def json_serial(obj):
 
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
+
+
+    if(isinstance(obj, Model)):
+        return model_to_dict(obj)
+
+
+    if(isinstance(obj, ModelSelect)):
+        array_out = []
+        for item in obj:
+            array_out.append(model_to_dict(item))
+
+        return array_out
+
+
     raise TypeError ("Type %s not serializable" % type(obj))
+
+
+
+
+# TODO - Finish this up
+
+class BaseAccess(): pass
+class private(BaseAccess): pass
+class public(BaseAccess): pass
+class disbled(BaseAccess): pass
+
+import inspect
+
+class Auth(object):
+    """
+
+
+
+    Basic auth management, inspired by https://flask-login.readthedocs.io/en/latest/_modules/flask_login/login_manager.html#LoginManager.user_loader
+    
+    How to use
+
+    # index.py
+
+    # Mark whole index as private - alternatices include public, and disabled
+    # NOTE: This is highly experimental, there are various problems with this - like tracking this setting if multiple files are imported
+    web.secure_routes('*', private) #this attaches a VIEW_DEFAULT_SECURITY = private to the current view
+    web.secure_routes('/admin/*', private) #this attaches a VIEW_DEFAULT_SECURITY = private to the current view
+
+
+    @web.auth(private) # Run my own checks
+    def check_private_auth(user):
+        pass
+
+    class admins(BaseAccess): pass
+
+    @web.auth(admin):
+    def check_admin(user):
+
+    
+    # With the exception
+    @web('/public', any=[private, public]) # Any can be true
+        return "Hello to ALL!"
+
+    # With the exception
+    @web('/public', only=[private, admins]) # All must be true
+        return "Hello to ALL!"
+
+
+    @web.unauthorised()
+    def login():
+        # handle not authorised
+
+
+    Available methods
+
+    auth.login(userid, user)
+    auth.logout(userid)
+    auth.user() # Get current user
+    """
+
+    def __init__(self, storage):
+        self.authenticated = False
+        self.active = False
+        self.anonymous = False
+        self.redirect = '/'
+        pass
+
+    def check(self):
+        pass
+
+
 
 
 #  _   _   _   _  _  _   _ _ _  ___  ___   ___  _  _ _  ___  _  _  _  __
@@ -53,6 +139,75 @@ def json_serial(obj):
 # |_| |_||_n_||_||_|\_|  \_n_/ |___||___/ |_|\\\_/|___| |_| |_||_|\_|\__/
 #
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class ToManyArgumentsError(Error):
+    """Exception raised for errors in the web() signature"""
+
+    def __init__(self, message):
+        self.message = message
+
+class BaseMethod(object): verb=None
+class POST(BaseMethod): verb="POST"
+class GET(BaseMethod): verb="GET"
+class DELETE(BaseMethod): verb="DELETE"
+class PUT(BaseMethod): verb="PUT"
+class PATCH(BaseMethod): verb="PATCH"
+
+
+class CORS(object):
+
+    """Add basic CORS header support when provided
+
+    More information
+    ----------------
+    See issue at https://github.com/pallets/werkzeug/issues/131
+
+    Example usage
+    -------------
+
+    # Using default values
+    @web('/api/login', cors=CORS())
+    def login(request):
+        return {'success':True}
+
+    # Using custom configuration
+    cors=CORS()
+    cors.origin="localhost"
+    cors.methods=[POST]
+
+    # Will append header to defaults, if you want to reset use `cors.headers=[]`
+    cors.headers.append('text/plain') 
+
+    # Using default values
+    @web('/api/login', cors=cors)
+    def login(request):
+        return {'success':True}
+
+
+    """
+
+    def __init__(self):
+        """TODO: to be defined1. """
+
+        self.origin="*"
+        self.methods=[POST, GET, DELETE, PUT, PATCH]
+        self.headers=['Content-Type', 'Authorization']
+
+    def set(self, response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET,PUT,POST,DELETE,PATCH')
+
+        response.headers.add('Access-Control-Allow-Headers',
+
+                             # Expects string in following format
+                             # 'Content-Type, Authorization'
+                             ",".join(self.headers)
+                             )
 
 
 class web(object):
@@ -145,18 +300,65 @@ class web(object):
     filters = {}
     template_engine = None
 
+    def __init__(self, *args, route=None, template=None, methods=None, endpoint=None, file=False, cors=None):
 
-    def __init__(self, route="/", template=None, methods=None, endpoint=None, file=False):
-        self.route = route
-        self.template = template
-        self.methods = methods
         self.endpoint = endpoint
         self.fn = None
         self.args = None # to be set when matched() is called
         self.file = file
+        self.cors = cors
+
+        # Key-word Grammer - note, if route or template exists from 
+        # key word arguments, they will not be overriden by *args values
+        self.route = route
+        self.template = template
+        self.methods = methods
+
+        # However, we also allow a basic grammer with optional arguments web([route],[template], [methods])
+        # Note, 1) First item may be a route or template, 2) second item may be a template
+
+        args_strings = [item for item in args if isinstance(item, str)]
+
+        # We have to check not string first as issubclass failes on testing str items
+        args_methods = [item for item in args if not(isinstance(item, str)) and issubclass(item, BaseMethod)]
+
+
+        # Add the methods
+        if len(args_methods) > 0:
+            self.methods = self.methods or []
+            for method in args_methods:
+                self.methods.append(method.verb)
+
+
+        # Only one string, maybe route or template
+        if len(args_strings) == 1:
+
+            if(self.route is None):
+                self.route = args_strings[0]
+            elif(self.template is None):
+                self.template = args_strings[0]
+            else:
+                raise ToManyArgumentsError("Got too many string arguments when route and template already set using named parameters")
+
+        if len(args_strings) == 2:
+
+            if(self.route is None and self.template is None):
+                self.route, self.template = args_strings
+            else:
+                raise ToManyArgumentsError("Got too many string arguments when route or template set using named parameters")
+
+        if len(args_strings) > 2:
+                raise ToManyArgumentsError("Got too many string, expected only 2 got {}".format(len(args_strings)))
+
+
+
+
+
 
 
     def __call__(self, fn):
+
+
         # A quick cleanup first, if no endpoint was specified we need to set it
         # to the view function
         self.endpoint = self.endpoint or fn.__name__ # Default endpoint name if none provided.
@@ -198,15 +400,26 @@ class web(object):
 
         return match
 
+
     @staticmethod
     def process(request, environ, cwd):
+
+        # Weg web() object that matches this request
         match = web.match(environ)
+
+        # Lets extract some key response information
         args = match.args
         out = match.fn(request, **args)
         data = out
         template = match.template
         file = match.file
+        cors = match.cors
 
+
+        # TODO: Check auth here
+
+        # TODO: Can we replace the Model, and ModelSelct with json.dumps(data,
+        # json_serial) which has been udpated to handle these types?
 
         # Check to see if this is a peewee model and convert to
         # dict
@@ -231,6 +444,7 @@ class web(object):
             out = web.template(cwd, template, data)
             response = Response(out)
             response.headers['Content-Type'] = 'text/html;charset=utf-8'
+            if cors: cors.set(response)
             return response
 
 
@@ -245,12 +459,14 @@ class web(object):
 
             response = Response(data, direct_passthrough=True)
             response.headers['Content-Type'] = '{};charset=utf-8'.format(mtype)
+            if cors: cors.set(response)
             return response
 
         # No template, just plain old string response
         if isinstance(data, str):
             response = Response(data)
             response.headers['Content-Type'] = 'text/html;charset=utf-8'
+            if cors: cors.set(response)
             return response
 
         # User has decided to run their own request object, just return this
@@ -262,11 +478,19 @@ class web(object):
         out = json.dumps(data, default=json_serial)
         response = Response(out)
         response.headers['Content-Type'] = 'application/json'
+        if cors: cors.set(response)
         return response
 
     @staticmethod
-    def response(data):
-        return Response(data)
+    def response(data, *args, **kwargs):
+        # TODO: This should build a web() compliant response object
+        # that handles cors, additional headers, etc
+        response=Response(data, *args, **kwargs)
+        # if cors: cors.set(response)
+
+
+        return response
+
 
     @staticmethod
     def filter(name):

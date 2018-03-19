@@ -88,10 +88,11 @@ class WebEvents(object):
             fn(request, response)
 
 
+
 class WebRequest(Request):
     """Web Request object, extends Request object.  """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, auth_class=None, **kwargs):
         super(WebRequest, self).__init__(*args, **kwargs)
         self.view_events = WebEvents()
 

@@ -1,4 +1,7 @@
-Apache Configuration example.
+Apache Configuration example & Marshmallow Integration
+======================================================
+
+See: http://marshmallow.readthedocs.io/en/latest/examples.html
 
 Implemented using suggested best practices from http://werkzeug.pocoo.org/docs/0.14/deployment/mod_wsgi/
 

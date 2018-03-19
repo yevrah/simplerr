@@ -113,14 +113,39 @@ Will need to use same syntax as flask blueprints, full relative/reference to mod
 - /api/users, method add() - link('api.users.add')
 
 
+## 13. Test having routes in one location that aliases nested apps
+
+For example, at the root folder in index.py
+
+    # index.py - multiple routes test
+    from simplerr import web
+    impor my_app
+
+    # my_app.py
+
+    @web('/not_xxxactually_folder/testme')
+    def testme(request):
+      url_for('my_app.testme')  #<-- Maps via library-method name
+      return "Hello World"
+
+
+
+
 Release 0.17
 ============
+
+- Improved Signals/Events Support
+  - See http://flask.pocoo.org/docs/0.12/api/#core-signals-list
 
 - Review livereload for runnserver
   - https://github.com/lepture/python-livereload
   - Use to rebuild docs
   - Run the wsgi instance
   - Can we inject livereload.js into reponse when <html> is present?
+
+- Full Text Search Engine
+  - http://sqlite.org/fts3.html
+  - http://charlesleifer.com/blog/meet-scout-a-search-server-powered-by-sqlite/
 
 - Email handling
   - Sync with imap/pop accounts
@@ -130,10 +155,26 @@ Release 0.17
 - SMS Handling
   - Track responses
 
+- Sessions using Key/Value Storage
+  - https://github.com/coleifer/peewee/blob/master/playhouse/kv.py
+
 - Better API - integrate with docstring
 - Debug bar setup - with docstring support
 - Prospector integration
 - Unit testing integration
+
+- Resteful API's Integregation with Swagger Docs
+  - Review Marshmallow for serialisation 
+      - https://github.com/klen/marshmallow-peewee
+      - https://pypi.python.org/pypi/Marshmallow-Peewee/1.2.7
+  - See example at  http://python-eve.org/
+  - With Swagger https://github.com/pyeve/eve-swagger
+  - Good presentation of core issues https://speakerdeck.com/nicola/developing-restful-web-apis-with-python-flask-and-mongodb
+  - Worth reviewig deployd
+
+- Arrow for all date time fields
+  - See http://arrow.readthedocs.io/en/latest/
+  - Main benefit is creating global times, eg arrow.utcnow().to('US/Pacific')
 
 Release 0.18
 ============

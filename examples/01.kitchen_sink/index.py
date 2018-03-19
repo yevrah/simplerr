@@ -1,4 +1,4 @@
-from simplerr import web
+from simplerr import web, GET, POST
 
 
 @web('/')
@@ -23,8 +23,9 @@ def echo_args(request):
     return "Echo using args: {}".format(request.args['msg'])
 
 
-@web('/echo/form', methods=['GET'])
+@web('/echo/form', GET)
 def echo_form(request):
+    request.session['abc']=10
 
     return """
     <html>
@@ -39,7 +40,7 @@ def echo_form(request):
 
 
 
-@web('/echo/form', methods=['POST'])
+@web('/echo/form', POST)
 def echo_form_post(request):
     msg = request.form["msg"]
 

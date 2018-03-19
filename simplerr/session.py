@@ -1,5 +1,5 @@
 from werkzeug.contrib.sessions import SessionStore, SessionMiddleware
-
+from datetime import datetime, timedelta
 
 class NoSQLSessionStore(SessionStore):
     """Todo: Implement TinyDB dict session store"""
@@ -42,11 +42,32 @@ class MemorySessionStore(SessionStore):
         SessionStore.__init__(self, session_class=None)
         self.sessions = {}
 
+        # Number of minutes before sessions expire
+        self.expire = 40
+
+    def clean(self):
+        cleanup_sid = []
+
+        # Collect sessions to cleanup
+        for key in self.sessions.keys():
+            accessed = self.sessions[key]['meta']['accessed']
+            expiration = datetime.now() - timedelta(minutes=self.expire)
+
+            if accessed < expiration:
+                cleanup_sid.append(key)
+
+        for expired_sid in cleanup_sid:
+            self.delete(self.get(expired_sid))
+
+
     def save(self, session):
-        self.sessions[session.sid] = session
+        self.sessions[session.sid] = {
+            'session': session,
+            'meta': {'accessed': datetime.now()}
+        }
 
     def delete(self, session):
-        self.sessions.pop(session.id, None)
+        self.sessions.pop(session.sid, None)
 
     def get(self, sid):
         if not self.is_valid_key(sid) or sid not in self.sessions:
@@ -54,7 +75,7 @@ class MemorySessionStore(SessionStore):
             return self.new()
 
         print("    > SESSION --> existing session")
-        return self.session_class(self.sessions[sid], sid, False)
+        return self.session_class(self.sessions[sid]['session'], sid, False)
 
 
     """
@@ -86,8 +107,13 @@ class MemorySessionStore(SessionStore):
     """
 
     def pre_response(self, request):
+        print("    > Cleaning Up Sessions")
+        self.clean()
+
+        print("    > Active Session: {}".format( len(self.sessions.keys())))
         sid = request.cookies.get(MemorySessionStore.COOKIE_NAME)
         print("    > Pre response session fired, cookie sid is: {}".format(sid))
+
         if sid is None:
             request.session = self.new()
             print("    > Generated new sid: {}".format(request.session.sid))
@@ -99,6 +125,7 @@ class MemorySessionStore(SessionStore):
         print("    > Post response session fired, saving sid: {}", request.session.sid)
 
         if request.session.should_save:
+            print("    > Saving Session to cookie")
             self.save(request.session)
             response.set_cookie(MemorySessionStore.COOKIE_NAME,
                                 request.session.sid)
