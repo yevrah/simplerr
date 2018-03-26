@@ -180,7 +180,13 @@ Release 0.18
 ============
 
 - NoSQL Integration with tinydb
-- Websocket integration
+- Websocket integration, as a use case look at https://github.com/zeekay/flask-uwsgi-websocket using debugger https://github.com/aldanor/SocketIO-Flask-Debug
+    
+    @websocket('/echo')
+    def echo(request):
+      return msg
+      
+
 
 Release 0.20
 ============
