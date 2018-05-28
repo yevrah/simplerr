@@ -421,6 +421,13 @@ class web(object):
         # TODO: Can we replace the Model, and ModelSelct with json.dumps(data,
         # json_serial) which has been udpated to handle these types?
 
+
+
+        # User has decided to run their own request object, just return this
+        if isinstance(data, Response):
+            return data
+
+
         # Check to see if this is a peewee model and convert to
         # dict
         if(isinstance(data, Model)):
@@ -469,9 +476,6 @@ class web(object):
             if cors: cors.set(response)
             return response
 
-        # User has decided to run their own request object, just return this
-        if isinstance(data, Response):
-            return data
 
         # Just raw data, send as is
         # TODO: Must be flagged as json explicity

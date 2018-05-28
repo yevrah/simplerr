@@ -20,7 +20,7 @@ import importlib.util
 
 from .web import web
 from .script import script
-from .session import MemorySessionStore
+from .session import FileSystemSessionStore
 
 import sys
 import json
@@ -163,7 +163,7 @@ class wsgi(object):
 
 
         # TODO: Need to update interface to handle these
-        self.session_store = MemorySessionStore()
+        self.session_store = FileSystemSessionStore()
 
         self.cwd = self.make_cwd()
 

@@ -1,15 +1,37 @@
 from werkzeug.contrib.sessions import SessionStore, SessionMiddleware
+from werkzeug.contrib.sessions import FilesystemSessionStore as WerkzeugFilesystemSessionStore
 from datetime import datetime, timedelta
 
-class NoSQLSessionStore(SessionStore):
-    """Todo: Implement TinyDB dict session store"""
-    pass
 
-class DbSessionStore(SessionStore):
-    """Todo: Implement Db session store"""
-    pass
+class SessionSignalMixin():
 
-class MemorySessionStore(SessionStore):
+    def pre_response(self, request):
+        print("    > Cleaning Up Sessions V2")
+
+        self.clean()
+
+        # print("    > Active Session: {}".format( len(self.sessions.keys())))
+        sid = request.cookies.get(self.COOKIE_NAME)
+        print("    > Pre response session fired, cookie sid is: {}".format(sid))
+
+
+        if sid is None:
+            request.session = self.new()
+            print("    > Generated new sid: {}".format(request.session.sid))
+        else:
+            request.session = self.get(sid)
+            print("    > Using existing sid: {}".format(request.session.sid))
+
+    def post_response(self, request, response):
+        print("    > Post response session fired, saving sid: {}", request.session.sid)
+
+        if request.session.should_save:
+            print("    > Saving Session to cookie")
+            self.save(request.session)
+            response.set_cookie(self.COOKIE_NAME, request.session.sid)
+
+
+class MMemorySessionStore(SessionStore, SessionSignalMixin):
     """TODO: Flesh out, sourced from
     https://github.com/pallets/werkzeug/blob/master/examples/contrib/sessions.py
 
@@ -36,9 +58,9 @@ class MemorySessionStore(SessionStore):
         return SessionMiddleware(application, MemorySessionStore())
     """
 
-    COOKIE_NAME = 'sessionfast'
 
     def __init__(self, session_class=None):
+        self.COOKIE_NAME = 'sessionfast'
         SessionStore.__init__(self, session_class=None)
         self.sessions = {}
 
@@ -104,7 +126,6 @@ class MemorySessionStore(SessionStore):
 
     The following provides a helper method for pre request and post request
     process.
-    """
 
     def pre_response(self, request):
         print("    > Cleaning Up Sessions")
@@ -130,4 +151,25 @@ class MemorySessionStore(SessionStore):
             response.set_cookie(MemorySessionStore.COOKIE_NAME,
                                 request.session.sid)
 
+    """
 
+class NoSQLSessionStore(SessionStore):
+    """Todo: Implement TinyDB dict session store"""
+    pass
+
+class DbSessionStore(SessionStore):
+    """Todo: Implement Db session store"""
+    pass
+
+
+
+class FileSystemSessionStore(WerkzeugFilesystemSessionStore, SessionSignalMixin):
+
+    def __init__(self, session_class=None):
+        # Number of minutes before sessions expire
+        self.expire = 40
+
+        self.COOKIE_NAME = 'sessionfast'
+        WerkzeugFilesystemSessionStore.__init__(self, session_class=None)
+
+    def clean(self): pass

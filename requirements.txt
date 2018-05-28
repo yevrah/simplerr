@@ -27,6 +27,7 @@ pytz==2018.3
 PyYAML==3.12
 redis==2.10.6
 requests==2.18.4
+simplerr==0.15.3
 six==1.11.0
 snowballstemmer==1.2.1
 Sphinx==1.7.1

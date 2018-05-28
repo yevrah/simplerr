@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-import click
-from simplerr import dispatcher
-
-
 """
 Example usage
 
 ./manage.py runserver --site ./examples/contacts
 """
+import click
+from simplerr import dispatcher
+
+
 
 @click.group()
 def cli(): pass
