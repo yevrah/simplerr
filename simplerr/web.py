@@ -37,12 +37,12 @@ import mimetypes
 # See https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable
 
 import json
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
 
-    if isinstance(obj, (datetime, date)):
+    if isinstance(obj, (datetime, date, time)):
         return obj.isoformat()
 
 
