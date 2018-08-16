@@ -11,6 +11,29 @@ Simplerr Development.
 [ ] Easy file upload
 [x] Easy access to request and response objects
 
+[ ] Config to specify filenames for security, eg
+
+      * `web.config['WEB_FILES'] = ['*.py']` - default
+      * `web.config['WEB_FILES'] = ['index.py', 'api.py']`
+      * `web.config['WEB_FILES_PREFIX'] = ['__web__']`
+      * See flask inplementation: https://github.com/pallets/flask/blob/16d83d6bb413bec09a656a659b98d897e7abcc81/flask/globals.py
+      * Uses wekzeug Locals: http://werkzeug.pocoo.org/docs/0.14/local/
+
+[ ] Make routes relative to folder, eg for http://example.com/foo/bar/hello
+
+    # File /foo/bar/index.py
+    #
+    # @web('/hello')
+    # def hello(r):
+    #   return "World"
+    #
+
+Notes:
+
+1) We can simply add two routes for each @web(), one including the folder path
+2) If we detect and old route, send deprecation warning
+
+
 1. Fix issues when errors occur
 -------------------------------
 

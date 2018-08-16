@@ -11,21 +11,15 @@ from werkzeug.debug import DebuggedApplication
 from werkzeug.serving import make_ssl_devcert
 from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
 from werkzeug.utils import redirect as wz_redirect
-
 from jinja2 import Environment, FileSystemLoader, Template
 
 import functools
 
 from pathlib import Path
-
-
 from .script import script
-
 from .template import T
-
 from peewee import *
 from peewee import ModelSelect
-
 from playhouse.shortcuts import model_to_dict, dict_to_model
 
 import mimetypes
@@ -58,7 +52,10 @@ def json_serial(obj):
         return array_out
 
 
-    raise TypeError ("Type %s not serializable" % type(obj))
+    return str(obj)
+
+
+    # raise TypeError ("Type %s not serializable" % type(obj))
 
 
 

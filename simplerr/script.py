@@ -111,6 +111,13 @@ class script(object):
     def get_module(self):
         # https://www.blog.pythonlibrary.org/2016/05/27/python-201-an-intro-to-importlib/
         # https://docs.python.org/3/library/importlib.html
+
+
+        # TODO: Change.. see https://dev.to/0xcrypto/dynamic-importing-stuff-in-python--1805
+        # Can we replace this with the following
+        # import importlib
+        # module = importlib.import_module('abc')
+
         script = self.get_script()
         spec = importlib.util.spec_from_file_location("", script)
         module = importlib.util.module_from_spec(spec)
