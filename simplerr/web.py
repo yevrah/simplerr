@@ -297,13 +297,14 @@ class web(object):
     filters = {}
     template_engine = None
 
-    def __init__(self, *args, route=None, template=None, methods=None, endpoint=None, file=False, cors=None):
+    def __init__(self, *args, route=None, template=None, methods=None, endpoint=None, file=False, cors=None, mimetype=None):
 
         self.endpoint = endpoint
         self.fn = None
         self.args = None # to be set when matched() is called
         self.file = file
         self.cors = cors
+        self.mimetype = mimetype
 
         # Key-word Grammer - note, if route or template exists from 
         # key word arguments, they will not be overriden by *args values
@@ -410,6 +411,7 @@ class web(object):
         data = out
         template = match.template
         file = match.file
+        mimetype = match.mimetype
         cors = match.cors
 
 
@@ -459,10 +461,23 @@ class web(object):
             file = open(file_path.absolute().__str__(), 'rb')
             data = wrap_file(environ, file)
 
-            mtype = mimetypes.guess_type(file_path.__str__())[0]
+            mtype = mimetype or mimetypes.guess_type(file_path.__str__())[0]
+
+            # Sometimes files are named without extensions in the local storage, so
+            # instead try and infer from the route
+
+
+            print(f'{mtype}')
+            if mtype is None:
+                urifile = environ.get('PATH_INFO').split('/')[-1:][0]
+                mtype = mimetypes.guess_type(urifile)[0]
+
+            print(f'{mtype}')
+
 
             response = Response(data, direct_passthrough=True)
             response.headers['Content-Type'] = '{};charset=utf-8'.format(mtype)
+
             if cors: cors.set(response)
             return response
 
