@@ -465,14 +465,9 @@ class web(object):
 
             # Sometimes files are named without extensions in the local storage, so
             # instead try and infer from the route
-
-
-            print(f'{mtype}')
             if mtype is None:
                 urifile = environ.get('PATH_INFO').split('/')[-1:][0]
                 mtype = mimetypes.guess_type(urifile)[0]
-
-            print(f'{mtype}')
 
 
             response = Response(data, direct_passthrough=True)
