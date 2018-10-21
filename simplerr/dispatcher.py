@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import click
 from werkzeug.serving import run_simple
 

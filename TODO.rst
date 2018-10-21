@@ -8,7 +8,7 @@ Simplerr Development.
 0. Basic features still missing
 -------------------------------
 
-[ ] Easy file upload
+[x] Easy file upload - already supported by werkzeug
 [x] Easy access to request and response objects
 
 [ ] Config to specify filenames for security, eg

@@ -10,21 +10,18 @@ import click
 
 
 # Idenify key project directories and add them to the python search path
-test_path = Path(__file__).parent
-project_path = test_path.parent / 'website/'
-
-sys.path.append(str(project_path))
-sys.path.append(str(test_path))
-
+project_path = Path(__file__).resolve().parents[1]
+sys.path.append( str(project_path) )
 
 class test_processor(object):
 
     def __init__(self):
         self.modules = [
-            'models.static',
-            'models.broker',
-            'models.misc',
-            'models.account',
+            'modules.simplerr.template',
+            'modules.simplerr.script',
+            # 'models.broker',
+            # 'models.misc',
+            # 'models.account',
             ]
 
         self.suite = unittest.TestSuite()
@@ -74,9 +71,6 @@ def tests(module):
     tester = test_processor()
     tester.modules = module or tester.modules
     tester.run()
-
-
-
 
 
 if __name__ == '__main__':
