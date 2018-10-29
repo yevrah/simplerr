@@ -19,9 +19,7 @@ class test_processor(object):
         self.modules = [
             'modules.simplerr.template',
             'modules.simplerr.script',
-            # 'models.broker',
-            # 'models.misc',
-            # 'models.account',
+            'modules.simplerr.web',
             ]
 
         self.suite = unittest.TestSuite()

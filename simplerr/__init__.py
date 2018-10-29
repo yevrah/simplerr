@@ -4,6 +4,7 @@ __version__ = "0.15.4"
 from .web import web
 
 # Import Grammar Helpers
+from .methods import GET, POST, PUT, DELETE
+from .cors import CORS
 
-from .web import GET, POST, PUT, DELETE, CORS
 

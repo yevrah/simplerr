@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import click
 from werkzeug.serving import run_simple
 
@@ -222,7 +223,6 @@ class wsgi(object):
                    self.app,
                    use_reloader=self.use_reloader,
                    use_debugger=self.use_debugger,
-                   use_evalex=self.use_evalex,
                    threaded=self.threaded,
                    processes=self.processes) # , ssl_context=(crt, key))
 
