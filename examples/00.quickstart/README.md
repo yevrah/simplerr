@@ -1,7 +1,7 @@
 Summary
 =======
 
-This is the intial project to kickstart your simplerr web development experience. Knowledge of python 3.6.5 is requireed, as well as a basic understanding of [Jinja](http://jinja.pocoo.org/) templates.
+This is the initial project to kickstart your simplerr web development experience. Knowledge of python 3.6.5 is required, as well as a basic understanding of [Jinja](http://jinja.pocoo.org/) templates.
 
 
 1. Installation
@@ -51,7 +51,7 @@ def echo(request):
 Notice that the function takes a 'request' object as it's first parameter. This variable is where you can access query string and for variables using `request.args['var']` and `request.form['var']` respectively.
 
 
-Now let's run it from our web server using the the simplerr debug server
+Now let's run it from our web server using the simplerr debug server
 
 ```bash
 $ python -m simplerr runserver
@@ -64,13 +64,9 @@ $ python -m simplerr runserver
 
 You should now be able to browse to http://localhost:9000/ - Congratulations on your first page!
 
-## More on routes
-
-Routes in this framework are pretty flexible, you can add various enpoints such as '/home', '/user', etc and server relevant content from it.
-
 ## Accepting data from routes, query strings, and forms
 
-Add the following code to index.py, these demonstrate some of the various methods to take inputs and ata.
+Add the following code to index.py, these demonstrate some of the various methods to take inputs and respond to data.
 
 ```python
 @web('/echo/<msg>')
@@ -102,9 +98,9 @@ def echo_form(request):
 
 Try and browse to the following locations
 
-  * http://localhost:5000/echo/Hello World
-  * http://localhost:5000/echo/args?msg=Hello World
-  * http://localhost:5000/echo/form
+  * http://localhost:9000/echo/Hello World
+  * http://localhost:9000/echo/args?msg=Hello World
+  * http://localhost:9000/echo/form
 
 ## Sending out json for those delicious ajax requests
 
@@ -116,18 +112,20 @@ def echo_json(request, msg):
     return {'msg': msg}
 ```
 
+Now browse to [http://localhost:9000/echo_json/hello world](http://localhost:9000/echo_json/hello world)
+
 ## What about templates
 
 Ok, so you want to render some templates. Easy! Just return a dictionary, or array object and specify the template name as the second parameter to @web()
 
 
 ```python
-@web('/echo/template/<msg>', 'echo.html')
+@web('/echo/template/<msg>', 'templates/echo.html')
 def echo_template(request, msg):
     return {'msg': msg}
 ```
 
-Don't forget to create the template file echo.html
+Don't forget to create the template file `templates/echo.html`
 
 ```html
 Echo: {{msg}}
@@ -135,12 +133,12 @@ Echo: {{msg}}
 
 ## What about database connections
 
-In quick_start, create a model.py file with the following code.
+First isntall PeeWee ORM with `pip install peewee` - it may already be installed with the simplerr framework. In quick_start, create a model.py file with the following code.
 
 ```python
 from peewee import *
 
-db = SqliteDatabase('./site/quick_start/people.db')
+db = SqliteDatabase('people.db')
 
 class Person(Model):
     firstname = CharField()
@@ -159,18 +157,57 @@ if __name__ == "__main__":
     Person(firstname="Michael", surname="Clark").save()
 ```
 
-To initialise the database, simply run the file using `python ./site/quick_start/modle.py`
+To initialise the database, simply run the file using `python model.py`.
 
 And to your index.py file, at the top add a line `from model import Person`
 
 You can now access the database using the following route, and template.
 
 ```python
-@web('/person/api') # This will just return the json for the Persons collection
+@web('/person/api/all') # This will just return the json for the Persons collection
 def person_api(request):
     return Person.select()
 
-@web('/first', template="first.html") # Get the first person in the database
+@web('/person/api/first') # Get the first person in the database
 def person_first(request):
     return Person.select().get()
 ```
+
+Models also bind to templates, create a file called `templates/first.html` with the following content:
+
+```html
+Firstname: {{firstname}}, Surname: {{surname}}, id: {{id}}
+```
+
+...and add the following route:
+
+
+```python
+@web('/person/first', 'templates/first.html')
+def showfirst(request):
+    return Person.select().get()
+```
+
+
+## Serving static files
+
+Creating an assets folder requires adding a specific route to that folder, in the quickstart location run the following bash commands.
+
+```bash
+$  mkdir assets
+$  curl -sS https://placeimg.com/640/480/any -o assets/test.png
+```
+
+Now add the following route which will load any file from the assets folder from the url starting with 'http:.../files/':
+
+```python
+@web('/files/<path:file>', file=True)
+def files(request, file):
+    return 'assets/' + file
+```
+
+Now browse to [http://localhost:9000/files/test.png](http://localhost:9000/files/test.png) to see the results.
+
+## More on routes
+
+Routes in this framework are pretty flexible, you can add various endpoints such as '/home', '/user', etc and serve relevant content from it.

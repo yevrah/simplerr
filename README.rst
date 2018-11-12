@@ -12,14 +12,7 @@ At the moment during this development phase, installation is from a vcs location
 
     $ pip install -e git+https://github.com/yevrah/simplerr#egg=simplerr
 
-Testing
--------
+QuickStart
+----------
 
-Testing is done through
-
-    tests/run.py
-
-On mac, to run tests on file changes use
-
-    ./run-tests.sh
-
+Follow the quickstart tutorial [here](examples/00.quickstart/README.md)
