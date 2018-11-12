@@ -7,7 +7,7 @@ A lightweight WGSI application aiming to remove as much boilerplate code as poss
 Installing
 ----------
 
-At the moment during this development phase, installation is from a vcs location.::
+At the moment during this development phase, installation is from a vcs location:
 
 
     $ pip install -e git+https://github.com/yevrah/simplerr#egg=simplerr
