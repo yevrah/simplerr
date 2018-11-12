@@ -98,9 +98,9 @@ def echo_form(request):
 
 Try and browse to the following locations
 
-  * http://localhost:9000/echo/Hello World
-  * http://localhost:9000/echo/args?msg=Hello World
-  * http://localhost:9000/echo/form
+  * `http://localhost:9000/echo/Hello World`
+  * `http://localhost:9000/echo/args?msg=Hello World`
+  * `http://localhost:9000/echo/form`
 
 ## Sending out json
 
@@ -112,7 +112,7 @@ def echo_json(request, msg):
     return {'msg': msg}
 ```
 
-Now browse to [http://localhost:9000/echo_json/hello world](http://localhost:9000/echo_json/hello world)
+Now browse to `http://localhost:9000/echo_json/hello world`.
 
 ## What about templates
 
