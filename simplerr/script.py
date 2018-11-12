@@ -1,6 +1,7 @@
 from pathlib import Path
 import importlib.util
 
+from werkzeug.exceptions import HTTPException, NotFound
 """
 TODO: Review werkzeug.utils.find_modules
 
