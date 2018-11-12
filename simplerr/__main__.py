@@ -5,6 +5,7 @@ Example usage
 ./manage.py runserver --site ./examples/contacts
 """
 import click
+import os
 from simplerr import dispatcher
 
 
@@ -21,8 +22,11 @@ def cli(): pass
 @click.option('--threaded', is_flag=True)
 @click.option('--processes', type=int, default=1, help="1")
 def runserver(site, hostname, port, reloader, debugger, evalex, threaded, processes):
+
+    basedir = os.path.abspath( os.getcwd() ) + site
+
     """Start a new development server."""
-    app = dispatcher.wsgi(site, hostname, port,
+    app = dispatcher.wsgi(basedir, hostname, port,
                use_reloader=reloader,
                use_debugger=debugger,
                use_evalex=evalex,

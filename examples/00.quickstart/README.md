@@ -51,14 +51,18 @@ def echo(request):
 Notice that the function takes a 'request' object as it's first parameter. This variable is where you can access query string and for variables using `request.args['var']` and `request.form['var']` respectively.
 
 
-Now let's run it from our web server using the manage.py utility.
+Now let's run it from our web server using the the simplerr debug server
 
 ```bash
-./manage.py runserver --site ./site/quick_start/
+$ python -m simplerr runserver
 
+ * Running on http://localhost:9000/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 308-919-717
 ```
 
-You should now be able to browse to http://localhost:5000/ - Congratulations on your first page!
+You should now be able to browse to http://localhost:9000/ - Congratulations on your first page!
 
 ## More on routes
 
