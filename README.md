@@ -15,4 +15,4 @@ At the moment during this development phase, installation is from a vcs location
 QuickStart
 ----------
 
-Follow the quickstart tutorial [here](examples/00.quickstart/README.md)
+Follow the quickstart tutorial [here](examples/00.quickstart/README.md).

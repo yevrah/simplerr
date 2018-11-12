@@ -4,7 +4,7 @@ Summary
 This is the initial project to kickstart your simplerr web development experience. Knowledge of python 3.6.5 is required, as well as a basic understanding of [Jinja](http://jinja.pocoo.org/) templates.
 
 
-1. Installation
+Installation
 ===============
 
 You will need to checkout the project, setup a virtual environment and import all the requirements to get started. Follow the steps below to do this.
@@ -13,32 +13,32 @@ If you are on windows, make sure to download the Python 3.6 installer from the p
 
 ```bash
 # Make sure to install python 3.x
-brew install python3
+$ brew install python3
 
 # Start a project folder
-mkdir -p quickstart quickstart/templates
-cd quickstart
+$ mkdir -p quickstart quickstart/templates
+$ cd quickstart
 
 # Create a python virtual environment
-python3.6 -m venv env
+$ python3.6 -m venv env
 
 # Setup your python bash shell for this project
-source env/bin/activate
+$ source env/bin/activate
 
 # Instal requirements for this project
-pip install -e git+https://github.com/yevrah/simplerr#egg=simplerr
+$ pip install -e git+https://github.com/yevrah/simplerr#egg=simplerr
 
 ```
 
 Your now set to go and start developing!
 
 
-2. Quick Start
+Quick Start
 ==============
 
 ## Basic Site Setup
 
-In the `quickstart` folder create a file called index.py. With the file open add the following code:
+In the `quickstart` folder create a file called `index.py`. With the file open add the following code:
 
 ```python
 from simplerr import web
@@ -102,7 +102,7 @@ Try and browse to the following locations
   * http://localhost:9000/echo/args?msg=Hello World
   * http://localhost:9000/echo/form
 
-## Sending out json for those delicious ajax requests
+## Sending out json
 
 Ok, so we can send text, what about data for our front end interation? The system is built to detect dictionary, and array returns and convert them to ajax responses.
 
@@ -157,11 +157,12 @@ if __name__ == "__main__":
     Person(firstname="Michael", surname="Clark").save()
 ```
 
-To initialise the database, simply run the file using `python model.py`.
+You need to perform a few more steps after creating `model.py`
 
-And to your index.py file, at the top add a line `from model import Person`
+  * To initialise the database, simply run `python model.py`
+  *Tto your `index.py` file, at the top, add `from model import Person`
 
-You can now access the database using the following route, and template.
+You can now access the database using the following route, and templates.
 
 ```python
 @web('/person/api/all') # This will just return the json for the Persons collection
