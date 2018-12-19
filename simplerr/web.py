@@ -21,6 +21,24 @@ from peewee import *
 from peewee import ModelSelect
 from playhouse.shortcuts import model_to_dict, dict_to_model
 
+
+
+# import threading
+# lock = threading.Lock()
+
+# def tid(msg):
+#     global lock
+
+#     lock.acquire() # will block if lock is already held
+#     print('')
+#     print(f'----- msg:   {msg}')
+#     print('----- name: ',threading.currentThread().name)
+#     print('----- id:   ',threading.currentThread().ident)
+#     print('')
+#     lock.release()
+
+# tid('loading web.py')
+
 #  _   _   _   _  _  _   _ _ _  ___  ___   ___  _  _ _  ___  _  _  _  __
 # | \_/ | / \ | || \| | | | | || __|| o ) | o \/ \| | ||_ _|| || \| |/ _|
 # | \_/ || o || || \\ | | V V || _| | o \ |   ( o ) U | | | | || \\ ( |_n
@@ -227,6 +245,7 @@ class web(object):
 
     @staticmethod
     def process(request, environ, cwd):
+        # tid(f'web.process:(r, e cwd={cwd})')
 
         # Weg web() object that matches this request
         match = web.match(environ)
@@ -234,6 +253,8 @@ class web(object):
         # Lets extract some key response information
         args = match.args
         out = match.fn(request, **args)
+        # tid(f'web.process().out = {out}')
+
         data = out
         template = match.template
         file = match.file

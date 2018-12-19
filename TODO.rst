@@ -5,6 +5,26 @@ The 0.16 release aims to stabilise basic web routing and functionality, as well
 as provide adequate documentation to get developers started in the world of
 Simplerr Development.
 
+
+0. Asset handling
+-----------------
+
+    @web.js('all_financials_js', source_dir='/financials/static')
+    def jsbundle():
+        """Bundle up the javascript files
+
+        note: in jinja must include the following snippet
+
+            {% assets "all_financials_js" %}
+                <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+            {% endassets %}
+        """
+
+        yield 'app.controller.js'
+        yield 'app.service.js'
+
+
+
 0. Basic features still missing
 -------------------------------
 
