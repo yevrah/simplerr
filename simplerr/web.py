@@ -203,7 +203,7 @@ class web(object):
     def __call__(self, fn):
         # A quick cleanup first, if no endpoint was specified we need to set it
         # to the view function
-        self.endpoint = self.endpoint or fn.__name__ # Default endpoint name if none provided.
+        self.endpoint = self.endpoint or id(fn) # Default endpoint name if none provided.
 
         # Proceed to create decorator
         self.fn = fn
