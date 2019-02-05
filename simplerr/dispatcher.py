@@ -124,16 +124,21 @@ class dispatcher(object):
 
     def dispatch_request(self, request, environ):
 
-        # Get view script and view module
-        sc = script(self.cwd, request.path)
-        view_module = sc.get_module()
-
         # Fire Pre Response Events
         self.global_events.fire_pre_response(request)
         request.view_events.fire_pre_response(request)
 
+        # RestorePresets
+        web.restore_presets()
+
+        # Get view script and view module
+        sc = script(self.cwd, request.path)
+        view_module = sc.get_module()
+
+        
         # Process Response, and get payload
         response = web.process(request, environ, self.cwd)
+
 
         # Done, fire post response events
         request.view_events.fire_post_response(request, response)
@@ -198,7 +203,12 @@ class wsgi(object):
         )
 
     def make_app(self):
+        from werkzeug.contrib.profiler import ProfilerMiddleware
+        # self.app = ProfilerMiddleware(dispatcher(self.cwd.absolute().__str__(), self.global_events))
         self.app = dispatcher(self.cwd.absolute().__str__(), self.global_events)
+
+
+
         return self.app
 
     def make_app_debug(self):

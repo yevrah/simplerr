@@ -5,7 +5,7 @@ from pathlib import Path
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.wsgi import wrap_file
-from werkzeug.exceptions import  abort
+from werkzeug.exceptions import abort
 from werkzeug.routing import Map, Rule
 from werkzeug.utils import redirect as wz_redirect
 
@@ -21,23 +21,6 @@ from peewee import *
 from peewee import ModelSelect
 from playhouse.shortcuts import model_to_dict, dict_to_model
 
-
-
-# import threading
-# lock = threading.Lock()
-
-# def tid(msg):
-#     global lock
-
-#     lock.acquire() # will block if lock is already held
-#     print('')
-#     print(f'----- msg:   {msg}')
-#     print('----- name: ',threading.currentThread().name)
-#     print('----- id:   ',threading.currentThread().ident)
-#     print('')
-#     lock.release()
-
-# tid('loading web.py')
 
 #  _   _   _   _  _  _   _ _ _  ___  ___   ___  _  _ _  ___  _  _  _  __
 # | \_/ | / \ | || \| | | | | || __|| o ) | o \/ \| | ||_ _|| || \| |/ _|
@@ -132,6 +115,10 @@ class web(object):
     destinations = []
     filters = {}
     template_engine = None
+
+    @staticmethod
+    def restore_presets():
+        web.destinations = []
 
     def __init__(self, *args, route=None, template=None, methods=None, endpoint=None, file=False, cors=None, mimetype=None):
 
