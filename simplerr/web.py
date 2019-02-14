@@ -113,6 +113,7 @@ class web(object):
     """
 
     destinations = []
+
     filters = {}
     template_engine = None
 
@@ -184,6 +185,7 @@ class web(object):
         # currently supported.
         if len(args_strings) > 2:
             raise ToManyArgumentsError("Got too many string arguments")
+
 
 
 
@@ -307,6 +309,7 @@ class web(object):
 
             response = Response(data, direct_passthrough=True)
             response.headers['Content-Type'] = '{};charset=utf-8'.format(mtype)
+            response.headers['Cache-Control'] = 'public, max-age=10800'
 
             if cors: cors.set(response)
             return response

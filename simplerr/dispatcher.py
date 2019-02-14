@@ -153,7 +153,7 @@ class wsgi(object):
 
     def __init__(self, site, hostname, port, use_reloader=True,
                   use_debugger=False, use_evalex=False, threaded=True,
-                  processes=1):
+                  processes=1, use_profiler=False):
 
         self.site = site
         self.hostname = hostname
@@ -206,6 +206,10 @@ class wsgi(object):
         from werkzeug.contrib.profiler import ProfilerMiddleware
         # self.app = ProfilerMiddleware(dispatcher(self.cwd.absolute().__str__(), self.global_events))
         self.app = dispatcher(self.cwd.absolute().__str__(), self.global_events)
+
+        # if self.use_profiler:
+        #     self.app = ProfilerMiddleware(self.app)
+
 
 
 

@@ -10,8 +10,6 @@ import inspect
 class Auth(object):
     """
 
-
-
     Basic auth management, inspired by https://flask-login.readthedocs.io/en/latest/_modules/flask_login/login_manager.html#LoginManager.user_loader
     
     How to use
