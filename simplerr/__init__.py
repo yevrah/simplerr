@@ -1,4 +1,4 @@
-__version__ = "0.15.7"
+__version__ = "0.15.8"
 
 # Import Core Web
 from .web import web
