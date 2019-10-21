@@ -90,7 +90,7 @@ setup(
         'click==6.7',
         'Jinja2==2.10',
         'peewee==3.0.18',
-        'Werkzeug==0.14.1',
+        'Werkzeug==0.15.3',
     ],
 
     # List additional groups of dependencies here (e.g. development
