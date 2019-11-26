@@ -50,4 +50,4 @@ coverage.xml
 
 # Environments
 env/
-envt/
+.simplerr/

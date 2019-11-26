@@ -1,10 +1,16 @@
 #!/bin/sh
 
-echo "change working directory to project root"
+# Go to root, set python-path to current project
 cd $(git rev-parse --show-toplevel)
+export PYTHONPATH=$PWD
 
-echo "activating env - you need to have this already"
-source env/bin/activate
+# Setup env for project
+mkdir -p .simplerr
+python3 -m venv .simplerr/env-qs
+source .simplerr/env-qs/bin/activate
+pip install -r requirements.txt
 
-echo "running server - you should also have run pip install -r req..."
-python manage.py runserver --site examples/01.kitchen_sink
+# go to quickstart, setup db and start
+cd examples/quickstart
+python model.py
+python -m simplerr runserver

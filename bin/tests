@@ -10,8 +10,9 @@ main() {
 setup() {
     cd $(git rev-parse --show-toplevel)
 
-    python3 -m venv envt
-    source envt/bin/activate
+    mkdir -p .simplerr
+    python3 -m venv .simplerr/env-tests
+    source .simplerr/env-tests/bin/activate
     pip install -r requirements.txt
     pip install colour_runner flake8
 }
