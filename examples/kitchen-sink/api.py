@@ -1,6 +1,7 @@
-from simplerr.web import web
+from simplerr import web
 
-@web('/api')
+
+@web("/api")
 def docs(request):
     return """
     <pre>
@@ -9,6 +10,7 @@ def docs(request):
     </pre>
     """
 
-@web('/api/echo/<msg>')
+
+@web("/api/echo/<msg>")
 def echo_json(request, msg):
-    return {'msg': msg}
+    return {"msg": msg}
