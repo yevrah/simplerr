@@ -12,11 +12,11 @@ from werkzeug.utils import redirect as wz_redirect
 from .template import Template
 from .serialise import tojson
 from .errors import ToManyArgumentsError
+from .methods import BaseMethod
 
 # TODO: Get rid of this dependancy
-from peewee import *
-from peewee import ModelSelect
-from playhouse.shortcuts import model_to_dict, dict_to_model
+from peewee import ModelSelect, Model
+from playhouse.shortcuts import model_to_dict
 
 
 class web(object):
@@ -30,7 +30,7 @@ class web(object):
     ==================
 
     The `web()` decorator (routes) wraps the `werkzueg.routing.Rule()` format
-    `<converter(arguments):name>`. 
+    `<converter(arguments):name>`.
 
     In addition to the `Route()` parameters, `web()` also add's a `template` to
     use in rendering that endpoint.
@@ -58,7 +58,8 @@ class web(object):
             subdomain=None,         # Not yet implemented
             methods=None,
             build_only=False,       # Not yet implemented
-            endpoint=None,          # Assigned to same value as first string param, eg '/index'
+            endpoint=None,          # Assigned to same value as first string
+                                    # param, eg '/index'
             strict_slashes=None,    # Not yet implemented
             redirect_to=None,       # Not yet implemented
             alias=False,            # Not yet implemented
@@ -82,9 +83,9 @@ class web(object):
         arguments using the following format <converter(arguments):name>.
 
     string
-        Path to the template to be rendered, the return value is supplied as the
-        template context. In addition, the `request` object is also available under
-        `request`.
+        Path to the template to be rendered, the return value is supplied as
+        the template context. In addition, the `request` object is also
+        available under `request`.
 
     endpoint
         The endpoint for this rule. This can be anything. A reference to a
@@ -100,7 +101,8 @@ class web(object):
     Footnotes
     =========
 
-    .. [1] Werkzeug Rule() details at http://werkzeug.pocoo.org/docs/0.14/routing/#rule-format
+    .. [1] Werkzeug Rule() details at
+           http://werkzeug.pocoo.org/docs/0.14/routing/#rule-format
 
     """
 
@@ -137,9 +139,10 @@ class web(object):
         self.template = template
         self.methods = methods  # Methods should be left as None to accept all
 
-        # However, we also allow a basic grammer with optional arguments, for example:
+        # However, we also allow a basic grammer with optional arguments, for
+        # example:
         #
-        #       @web([route],[template], [method], [method]) -> *args may be 0 or 3 long!
+        #       @web([route],[template], [method], [method])
         #
         # More concrete examples:
         #
@@ -156,7 +159,8 @@ class web(object):
         args_strings = [item for item in args if isinstance(item, str)]
 
         # We have to check not string first as issubclass fails on testing str
-        # items - This extracts GET/POST which are the only non-string types expected
+        # items - This extracts GET/POST which are the only non-string types
+        # expected
         args_methods = [
             item
             for item in args
@@ -277,7 +281,7 @@ class web(object):
                 data = out
 
         # Template expected, attempt render
-        if template != None:
+        if template is not None:
             # Add request to data
             data = data or {}
             data["request"] = request
@@ -294,7 +298,7 @@ class web(object):
 
         # Reference example implementation here
         #   http://bit.ly/2ocHYNZ
-        if file == True:
+        if file is True:
             file_path = Path(cwd) / Path(out)
             file = open(file_path.absolute().__str__(), "rb")
             data = wrap_file(environ, file)
@@ -353,14 +357,6 @@ class web(object):
             return decorated
 
         return wrap
-
-        @functools.wraps(fn)
-        def decorated(request, *args, **kwargs):
-            return fn(request, *args, **kwargs)
-
-        # Return pretty much unmodified, we really only
-        # wanted this to index it into filters dict
-        return decorated
 
     @staticmethod
     def template(cwd, template, data):
