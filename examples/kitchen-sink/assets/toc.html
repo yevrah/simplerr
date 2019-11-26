@@ -166,14 +166,14 @@
                    function flash(result) {$('#flash').html(result.msg)};
                    function del() {
                       $.ajax({
-                        url: '/item/delete/' + $('#item').val(), 
-                        type: 'DELETE', 
+                        url: '/item/delete/' + $('#item').val(),
+                        type: 'DELETE',
                         success: flash(result) });
                     }
 
                    function update() {
                       $.ajax({
-                        url: '/item/update/' + $('#item').val(), 
+                        url: '/item/update/' + $('#item').val(),
                         type: 'PUT',
                         success: flash(result) });
                     }

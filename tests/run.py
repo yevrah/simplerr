@@ -8,7 +8,7 @@ from colour_runner import runner
 import click
 
 
-# Idenify key project directories and add them to the python search path
+# Identify key project directories and add them to the python search path
 project_path = Path(__file__).resolve().parents[1]
 sys.path.append( str(project_path) )
 

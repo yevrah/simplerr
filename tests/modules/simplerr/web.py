@@ -11,6 +11,9 @@ found here: http://werkzeug.pocoo.org/docs/0.14/test/
 
 """
 
+# Track function ID's before they are wrapped
+fn_ids = {}
+
 @web('/simple')
 def simple_fn(r):
     return
@@ -53,19 +56,22 @@ class BasicWebTests(TestCase):
         pass
 
     def test_check_routes(self):
-        self.assertEqual( web.destinations[0].endpoint, 'simple_fn' )
+        self.assertEqual( web.destinations[0].endpoint, id(web.destinations[0].fn))
+        self.assertEqual( web.destinations[0].fn.__name__, 'simple_fn')
         self.assertEqual( web.destinations[0].route, '/simple' )
 
-        self.assertEqual( web.destinations[1].endpoint, 'string_response_fn' )
+        self.assertEqual( web.destinations[1].endpoint, id(web.destinations[1].fn))
+        self.assertEqual( web.destinations[1].fn.__name__, 'string_response_fn')
         self.assertEqual( web.destinations[1].route, '/response/string' )
 
-        self.assertEqual( web.destinations[2].endpoint, 'dict_response_fn' )
+        self.assertEqual( web.destinations[2].endpoint, id(web.destinations[2].fn))
+        self.assertEqual( web.destinations[2].fn.__name__, 'dict_response_fn')
         self.assertEqual( web.destinations[2].route, '/response/dict' )
 
 
     def test_match_simple_route(self):
         rv = web.match(create_env('/simple'))
-        self.assertEquals( rv.endpoint, 'simple_fn')
+        self.assertEquals( rv.fn.__name__, 'simple_fn')
 
 
     def test_process_request(self):
