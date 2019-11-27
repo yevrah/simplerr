@@ -227,6 +227,7 @@ class web(object):
 
             # Create the rule and add it tot he map
             rule = Rule(item.route, endpoint=item.endpoint, methods=item.methods)
+
             map.add(rule)
 
         # Check for match
