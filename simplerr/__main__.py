@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import click
-import os, sys
+import os
 from simplerr import dispatcher, __version__ as sversion
 
 

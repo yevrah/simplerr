@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 main() {
     setup      `# test boilerplate`
@@ -43,7 +43,7 @@ runtest() {
     echo ""
     echo "---------------------------"
     echo "Linted top 10 items"
-    flake8 simplerr | head -n 10
+    flake8 --config=.flake8 simplerr | head -n 10
     echo "---------------------------"
 }
 

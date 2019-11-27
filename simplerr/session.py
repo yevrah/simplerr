@@ -1,11 +1,11 @@
-from werkzeug.contrib.sessions import SessionStore, SessionMiddleware
-from werkzeug.contrib.sessions import FilesystemSessionStore as WerkzeugFilesystemSessionStore
+from werkzeug.contrib.sessions import SessionStore
+from werkzeug.contrib.sessions import (
+    FilesystemSessionStore as WerkzeugFilesystemSessionStore,
+)
 from datetime import datetime, timedelta
 
 
-class SessionSignalMixin():
-
-
+class SessionSignalMixin:
     def pre_response(self, request):
         self.clean()
         sid = request.cookies.get(self.COOKIE_NAME)
@@ -48,9 +48,8 @@ class MMemorySessionStore(SessionStore, SessionSignalMixin):
         return SessionMiddleware(application, MemorySessionStore())
     """
 
-
     def __init__(self, session_class=None):
-        self.COOKIE_NAME = 'sessionfast'
+        self.COOKIE_NAME = "sessionfast"
         SessionStore.__init__(self, session_class=None)
         self.sessions = {}
 
@@ -62,7 +61,7 @@ class MMemorySessionStore(SessionStore, SessionSignalMixin):
 
         # Collect sessions to cleanup
         for key in self.sessions.keys():
-            accessed = self.sessions[key]['meta']['accessed']
+            accessed = self.sessions[key]["meta"]["accessed"]
             expiration = datetime.now() - timedelta(minutes=self.expire)
 
             if accessed < expiration:
@@ -71,11 +70,10 @@ class MMemorySessionStore(SessionStore, SessionSignalMixin):
         for expired_sid in cleanup_sid:
             self.delete(self.get(expired_sid))
 
-
     def save(self, session):
         self.sessions[session.sid] = {
-            'session': session,
-            'meta': {'accessed': datetime.now()}
+            "session": session,
+            "meta": {"accessed": datetime.now()},
         }
 
     def delete(self, session):
@@ -84,8 +82,7 @@ class MMemorySessionStore(SessionStore, SessionSignalMixin):
     def get(self, sid):
         if not self.is_valid_key(sid) or sid not in self.sessions:
             return self.new()
-        return self.session_class(self.sessions[sid]['session'], sid, False)
-
+        return self.session_class(self.sessions[sid]["session"], sid, False)
 
     """
     From: http://werkzeug.pocoo.org/docs/0.14/contrib/sessions/
@@ -140,23 +137,26 @@ class MMemorySessionStore(SessionStore, SessionSignalMixin):
 
     """
 
+
 class NoSQLSessionStore(SessionStore):
     """Todo: Implement TinyDB dict session store"""
+
     pass
+
 
 class DbSessionStore(SessionStore):
     """Todo: Implement Db session store"""
+
     pass
 
 
-
 class FileSystemSessionStore(WerkzeugFilesystemSessionStore, SessionSignalMixin):
-
     def __init__(self, session_class=None):
         # Number of minutes before sessions expire
         self.expire = 40
 
-        self.COOKIE_NAME = 'sessionfast'
+        self.COOKIE_NAME = "sessionfast"
         WerkzeugFilesystemSessionStore.__init__(self, session_class=None)
 
-    def clean(self): pass
+    def clean(self):
+        pass

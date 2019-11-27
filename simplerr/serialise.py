@@ -1,14 +1,12 @@
 # TODO: Move this to ext
-from peewee import *
-from peewee import ModelSelect
-from playhouse.shortcuts import model_to_dict, dict_to_model
-
+from peewee import ModelSelect, Model
+from playhouse.shortcuts import model_to_dict
 
 
 # We need custom json_serial to handle date time - not supported
 # by the default json_dumps
 #
-# See https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable
+# See https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable # noqa
 
 import json
 from datetime import date, datetime, time
@@ -22,23 +20,20 @@ def json_serial(obj):
     if isinstance(obj, (datetime, date, time)):
         return obj.isoformat()
 
-
-    if(isinstance(obj, Model)):
+    if isinstance(obj, Model):
         return model_to_dict(obj)
 
-
-    if(isinstance(obj, ModelSelect)):
+    if isinstance(obj, ModelSelect):
         array_out = []
         for item in obj:
             array_out.append(model_to_dict(item))
 
         return array_out
 
-
     return str(obj)
 
-
     # raise TypeError ("Type %s not serializable" % type(obj))
+
 
 def tojson(data):
     return json.dumps(data, default=json_serial)
