@@ -1,5 +1,6 @@
 from werkzeug.serving import run_simple
 from werkzeug.wrappers import Request
+from werkzeug.exceptions import NotFound
 from werkzeug.debug import DebuggedApplication
 from pathlib import Path
 from .web import web
@@ -94,24 +95,34 @@ class dispatcher(object):
         return response(environ, start_response)
 
     def dispatch_request(self, request, environ):
+        response = None
 
         # Fire Pre Response Events
         self.global_events.fire_pre_response(request)
         request.view_events.fire_pre_response(request)
 
-        # RestorePresets
-        web.restore_presets()
+        # Various errors can occur in processing a request, we need to protect
+        # the post event responses from these so they can fire and cleanup
+        # events.
+        #
+        # Note that any errors not caught will be re-thrown, but finally will
+        # always run to clean up resources.
+        try:
+            # RestorePresets
+            web.restore_presets()
 
-        # Get view script and view module
-        sc = script(self.cwd, request.path)
-        sc.get_module()
+            # Get view script and view module
+            sc = script(self.cwd, request.path)
+            sc.get_module()
 
-        # Process Response, and get payload
-        response = web.process(request, environ, self.cwd)
-
-        # Done, fire post response events
-        request.view_events.fire_post_response(request, response)
-        self.global_events.fire_post_response(request, response)
+            # Process Response, and get payload
+            response = web.process(request, environ, self.cwd)
+        except NotFound:
+            response = NotFound()
+        finally:
+            # Fire post response events
+            request.view_events.fire_post_response(request, response)
+            self.global_events.fire_post_response(request, response)
 
         # There should be no more user code after this being run
         return response  # return web.process(route).
@@ -181,7 +192,6 @@ class wsgi(object):
 
     def make_app_debug(self):
         self.app = DebuggedApplication(self.make_app(), evalex=True,)
-
         return self.app
 
     def serve(self):
