@@ -60,10 +60,10 @@ def banner():
         Welcome to simplerr! The framework aiming to
         keep it easy, clean and simple!
 
-        You run `python -m simplerr runserver` with
+        Run `python -m simplerr runserver` with
         additional parameters, for example:
 
-          `--site project/website` set a web path
+          `--site project/website` for web path
           `--host 192.168.0.1` to specify bind host
           `--port 8080` to open specific port
           `--help` to see more options
