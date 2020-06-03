@@ -77,6 +77,7 @@ setup(
         "Jinja2==2.10.3",
         "peewee==3.12.0",
         "Werkzeug==0.16.0",
+        "wheel==0.34.2",
     ],
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

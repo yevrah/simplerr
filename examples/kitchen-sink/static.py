@@ -1,11 +1,12 @@
-from simplerr.web import web
+from simplerr import web
 
-@web('/static/<path:file>', file=True)
+
+@web("/static/<path:file>", file=True)
 def file(request, file):
     return "./assets/" + file
 
 
-@web('/static/test')
+@web("/static/test")
 def withcss(request):
 
     return """
@@ -18,10 +19,3 @@ def withcss(request):
     </body>
     </html>
     """
-
-
-
-
-
-
-

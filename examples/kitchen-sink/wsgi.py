@@ -1,6 +1,5 @@
 from simplerr import dispatcher
 
-
 site = '/Users/harvey/dev/simplerr.com/examples/01.kitchen_sink/'
 hostname = 'localhost'
 port = 80

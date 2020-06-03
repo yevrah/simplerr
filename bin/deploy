@@ -9,7 +9,6 @@ main() {
     build
 }
 
-
 environment() {
     log "setup python environment"
     python3 -m venv build-env
