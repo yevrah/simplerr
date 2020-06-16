@@ -36,9 +36,11 @@ class script(object):
     #
     # route = '/'
 
-    def __init__(self, cwd, route):
+    def __init__(self, cwd, route, extension=".py"):
         self.cwd = Path(cwd)
         self.route = Path("." + route)
+        self.extension = extension
+        self.default = "index" + self.extension
 
     def get_script(self):
         # Examples
@@ -58,7 +60,7 @@ class script(object):
         # First edge case, were calling site root '/', path treats this as 0 length
         # so it wont go into search loop below
         if max_depth == 0:
-            root_index_py = self.cwd / "index.py"
+            root_index_py = self.cwd / self.default
             if root_index_py.exists():
                 return root_index_py.absolute().__str__()
 
@@ -68,7 +70,7 @@ class script(object):
 
             # Is this a script file without the '.py'
             # eg, test for ..mple.com/app/login -> ..mple.com/app/login.py
-            script_py_str = "".join([search_path.__str__(), ".py"])
+            script_py_str = "".join([search_path.__str__(), self.extension])
             script_py = Path(script_py_str)
 
             if script_py.exists():
@@ -76,7 +78,7 @@ class script(object):
 
             # Is this a folder with index.py
             # eg, test for ..mpl.com/app/login/index.py
-            index_py = search_path / "index.py"
+            index_py = search_path / self.default
             if index_py.exists():
                 return index_py.absolute().__str__()
 
@@ -87,7 +89,7 @@ class script(object):
             if i != 1:
                 continue
 
-            root_index_py = search_path.parent / "index.py"
+            root_index_py = search_path.parent / self.default
             if root_index_py.exists():
                 return root_index_py.absolute().__str__()
 

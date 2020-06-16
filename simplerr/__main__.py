@@ -18,9 +18,13 @@ def cli():
 @click.option("--evalex", is_flag=True, default=False)
 @click.option("--threaded", is_flag=True)
 @click.option("--processes", type=int, default=1, help="1")
-def runserver(site, hostname, port, reloader, debugger, evalex, threaded, processes):
-
+@click.option("-e", "--extension", type=str, default=".py", help=".web.py")
+def runserver(site, hostname, port, reloader, debugger, evalex, threaded, processes, extension):
     basedir = os.path.abspath(os.getcwd()) + site
+
+    before_reload()
+    after_reload()
+    deprecation_warning(extension)
 
     """Start a new development server."""
     app = dispatcher.wsgi(
@@ -32,9 +36,12 @@ def runserver(site, hostname, port, reloader, debugger, evalex, threaded, proces
         use_evalex=evalex,
         threaded=threaded,
         processes=processes,
-    )  # , ssl_context=(crt, key))
+        extension=extension
+    )
 
     app.serve()
+
+
 
 
 def before_reload():
@@ -47,6 +54,20 @@ def after_reload():
         # The reloader has restarted, we can put init code here
         pass
 
+def deprecation_warning(extension):
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        return
+
+    if (extension == ".py"):
+        print("""
+        ⚠️  WARNING
+        ---------------------------------------------
+        Consider setting extension to '.web.py', this
+        will be the default in future releases. This
+        makes your application more secure by ensuring
+        that attackers do not referrence private
+        python files and modules.
+                """)
 
 def banner():
     print(
@@ -66,6 +87,7 @@ def banner():
           `--site project/website` for web path
           `--host 192.168.0.1` to specify bind host
           `--port 8080` to open specific port
+          `--extension .web.py` to run only web files
           `--help` to see more options
     """.format(
             sversion
@@ -73,7 +95,6 @@ def banner():
     )
 
 
+
 if __name__ == "__main__":
-    before_reload()
-    after_reload()
     cli()

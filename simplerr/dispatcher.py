@@ -82,9 +82,11 @@ class WebRequest(Request):
 
 
 class dispatcher(object):
-    def __init__(self, cwd, global_events):
+    def __init__(self, cwd, global_events, extension=".py"):
         self.cwd = cwd
         self.global_events = global_events
+        self.extension = extension
+
 
     def __call__(self, environ, start_response):
         """This methods provides the basic call signature required by WSGI"""
@@ -110,7 +112,8 @@ class dispatcher(object):
             web.restore_presets()
 
             # Get view script and view module
-            sc = script(self.cwd, request.path)
+            print(">> EXT: ", self.extension)
+            sc = script(self.cwd, request.path, extension=self.extension)
             sc.get_module()
 
             # Process Response, and get payload
@@ -139,6 +142,7 @@ class wsgi(object):
         threaded=True,
         processes=1,
         use_profiler=False,
+        extension=".py"
     ):
 
         self.site = site
@@ -149,6 +153,7 @@ class wsgi(object):
         self.use_evalex = use_evalex
         self.threaded = threaded
         self.processes = processes
+        self.extension = extension
 
         self.app = None
 
@@ -185,7 +190,7 @@ class wsgi(object):
 
     def make_app(self):
         path = self.cwd.absolute().__str__()
-        self.app = dispatcher(path, self.global_events)
+        self.app = dispatcher(path, self.global_events, self.extension)
         return self.app
 
     def make_app_debug(self):
