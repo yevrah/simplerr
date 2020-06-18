@@ -60,7 +60,7 @@ def deprecation_warning(extension):
 
     if (extension == ".py"):
         print("""
-        ⚠️  WARNING
+        WARNING
         ---------------------------------------------
         Consider setting extension to '.web.py', this
         will be the default in future releases. This
@@ -85,7 +85,7 @@ def banner():
         additional parameters, for example:
 
           `--site project/website` for web path
-          `--host 192.168.0.1` to specify bind host
+          `--hostname 192.168.0.1` to specify bind host
           `--port 8080` to open specific port
           `--extension .web.py` to run only web files
           `--help` to see more options

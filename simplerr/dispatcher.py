@@ -112,7 +112,6 @@ class dispatcher(object):
             web.restore_presets()
 
             # Get view script and view module
-            print(">> EXT: ", self.extension)
             sc = script(self.cwd, request.path, extension=self.extension)
             sc.get_module()
 
