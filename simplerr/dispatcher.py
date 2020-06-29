@@ -117,8 +117,13 @@ class dispatcher(object):
 
             # Process Response, and get payload
             response = web.process(request, environ, self.cwd)
+
         except NotFound:
             response = NotFound()
+
+        except OSError:
+            response = NotFound()
+
         finally:
             # Fire post response events
             request.view_events.fire_post_response(request, response)
