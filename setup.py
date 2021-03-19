@@ -74,7 +74,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         "click==7.0",
-        "Jinja2==2.10.3",
+        "Jinja2==2.11.3",
         "peewee==3.13.3",
         "Werkzeug==0.16.0",
         "wheel==0.34.2",
