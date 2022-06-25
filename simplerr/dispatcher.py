@@ -75,7 +75,7 @@ class WebRequest(Request):
         #       see https://github.com/pallets/werkzeug/blob/master/werkzeug/contrib/wrappers.py#L44   # noqa:E501
         try:
             data = self.data
-            out = json.loads(data, encoding="utf8")
+            out = json.loads(data)
         except ValueError:
             out = None
         return out
