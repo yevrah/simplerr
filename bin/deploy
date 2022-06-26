@@ -20,7 +20,7 @@ environment() {
     pip install twine
 
     log "we might need wheel"
-    pip install wheel
+    python -m pip install --upgrade pip setuptools wheel
 }
 
 build() {
@@ -41,6 +41,5 @@ clean() {
 log() {
     printf "\n👉 $*\n"
 }
-
 
 main

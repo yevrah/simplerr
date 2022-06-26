@@ -73,11 +73,11 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        "markupsafe==2.0.1",
         "click==7.0",
-        "Jinja2==2.10.3",
+        "Jinja2==2.11.3",
         "peewee==3.13.3",
         "Werkzeug==0.16.0",
-        "wheel==0.34.2",
     ],
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
