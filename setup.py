@@ -77,7 +77,7 @@ setup(
         "click==7.0",
         "Jinja2==2.11.3",
         "peewee==3.13.3",
-        "Werkzeug==0.16.0",
+        "Werkzeug==2.2.3",
     ],
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
