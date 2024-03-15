@@ -15,7 +15,7 @@ from .errors import ToManyArgumentsError
 from .methods import BaseMethod
 
 # TODO: Get rid of this dependancy
-from peewee import ModelSelect, Model
+# from peewee import ModelSelect, Model
 from playhouse.shortcuts import model_to_dict
 
 
