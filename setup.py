@@ -76,7 +76,7 @@ setup(
         "markupsafe==2.0.1",
         "click==7.0",
         "Jinja2==2.11.3",
-        # "peewee==3.0.19",
+        "peewee>=3.0.18",
         "Werkzeug==0.16.0",
     ],
     # List additional groups of dependencies here (e.g. development

@@ -1,5 +1,5 @@
 # TODO: Move this to ext
-# from peewee import ModelSelect, Model
+from peewee import ModelSelect, Model
 from playhouse.shortcuts import model_to_dict
 
 
