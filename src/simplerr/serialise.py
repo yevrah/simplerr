@@ -1,6 +1,3 @@
-# TODO: Move this to ext
-from peewee import ModelSelect, Model
-from playhouse.shortcuts import model_to_dict
 
 
 # We need custom json_serial to handle date time - not supported
@@ -8,9 +5,11 @@ from playhouse.shortcuts import model_to_dict
 #
 # See https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable # noqa
 
+import logging
 import json
 from datetime import date, datetime, time
 
+logger = logging.getLogger(__name__)
 
 # TODO: All serialisable items need to have a obj.todict() method, otheriwse
 # str(obj) will be used.
@@ -20,15 +19,21 @@ def json_serial(obj):
     if isinstance(obj, (datetime, date, time)):
         return obj.isoformat()
 
-    if isinstance(obj, Model):
-        return model_to_dict(obj)
+    try:
+        # TODO: Move this to ext
+        from peewee import ModelSelect, Model
+        from playhouse.shortcuts import model_to_dict
 
-    if isinstance(obj, ModelSelect):
-        array_out = []
-        for item in obj:
-            array_out.append(model_to_dict(item))
+        if isinstance(obj, Model):
+            return model_to_dict(obj)
 
-        return array_out
+        if isinstance(obj, ModelSelect):
+            array_out = []
+            for item in obj:
+                array_out.append(model_to_dict(item))
+            return array_out
+    except ImportError:
+        logger.warning("peewee not installed, cannot serialise peewee models")
 
     return str(obj)
 

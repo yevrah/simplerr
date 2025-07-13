@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import logging
 import mimetypes
 import functools
 from pathlib import Path
+from typing import Optional
 
 from werkzeug.wrappers import Response
 from werkzeug.wsgi import wrap_file
@@ -14,9 +16,7 @@ from .serialise import tojson
 from .errors import ToManyArgumentsError
 from .methods import BaseMethod
 
-# TODO: Get rid of this dependancy
-from peewee import ModelSelect, Model
-from playhouse.shortcuts import model_to_dict
+logger = logging.getLogger(__name__)
 
 
 class web(object):
@@ -116,15 +116,15 @@ class web(object):
         web.destinations = []
 
     def __init__(
-        self,
-        *args,
-        route=None,
-        template=None,
-        methods=None,
-        endpoint=None,
-        file=False,
-        cors=None,
-        mimetype=None
+            self,
+            *args,
+            route=None,
+            template=None,
+            methods=None,
+            endpoint=None,
+            file=False,
+            cors=None,
+            mimetype=None
     ):
 
         self.endpoint = endpoint
@@ -227,6 +227,7 @@ class web(object):
 
             # Create the rule and add it tot he map
             rule = Rule(item.route, endpoint=item.endpoint, methods=item.methods)
+            item.rule = rule
 
             map.add(rule)
 
@@ -241,11 +242,101 @@ class web(object):
         return match
 
     @staticmethod
-    def process(request, environ, cwd):
+    def handle_peewee_model_data(data):
+        _data = None
+        try:
+            # TODO: Get rid of this dependancy
+            from peewee import ModelSelect, Model
+            from playhouse.shortcuts import model_to_dict
+            if isinstance(data, Model):
+                out = model_to_dict(data)
+                _data = out
+
+            if isinstance(data, ModelSelect):
+                array_out = []
+                for item in data:
+                    array_out.append(model_to_dict(item))
+                    out = {"results": array_out}
+                    _data = out
+        except ImportError:
+            logger.warning("peewee not installed, cannot serialise peewee models")
+            _data = data
+        return _data
+
+
+
+
+    @staticmethod
+    def handle_response_data(data):
+        return data
+
+    @staticmethod
+    def handle_template_data(template, data, request, cwd, cors=None):
+        # Add request to data
+        data = data or {}
+        data["request"] = request
+        out = web.template(cwd, template, data)
+
+        response = Response(out)
+        response.headers["Content-Type"] = "text/html;charset=utf-8"
+
+        # TODO: make reponse plugin based, so cors needs to be added - pre-respon
+        if cors:
+            cors.set(response)
+
+        return response
+
+    @staticmethod
+    def handle_file_data(cwd, out, environ, mimetype, cors=None):
+        file_path = Path(cwd) / Path(out)
+        file = open(file_path.absolute().__str__(), "rb")
+        data = wrap_file(environ, file)
+
+        mtype = mimetype or mimetypes.guess_type(file_path.__str__())[0]
+
+        # Sometimes files are named without extensions in the local storage, so
+        # instead try and infer from the route
+        if mtype is None:
+            urifile = environ.get("PATH_INFO").split("/")[-1:][0]
+            mtype = mimetypes.guess_type(urifile)[0]
+
+        response = Response(data, direct_passthrough=True)
+        response.headers["Content-Type"] = "{};charset=utf-8".format(mtype)
+        response.headers["Cache-Control"] = "public, max-age=10800"
+
+        if cors:
+            cors.set(response)
+
+        return response
+
+    @staticmethod
+    def handle_str_data(data, cors=None):
+        response = Response(data)
+        response.headers["Content-Type"] = "text/html;charset=utf-8"
+        if cors:
+            cors.set(response)
+        return response
+
+    @staticmethod
+    def handle_json_data(data):
+        out = tojson(data)
+        response = Response(out)
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+    @staticmethod
+    def process(request, environ, cwd, request_hooks: Optional[list] = None):
         # tid(f'web.process:(r, e cwd={cwd})')
 
         # Weg web() object that matches this request
-        match = web.match(environ)
+        try:
+            match = web.match(environ)
+            request.url_route = match
+            environ['simplerr.url_route'] = match
+        finally:
+            if request_hooks:
+                for hook in request_hooks:
+                    hook(request)
 
         # Lets extract some key response information
         args = match.args
@@ -266,73 +357,29 @@ class web(object):
 
         # User has decided to run their own request object, just return this
         if isinstance(data, Response):
-            return data
+            return web.handle_response_data(data)
 
         # Check to see if this is a peewee model and convert to
         # dict,
-        if isinstance(data, Model):
-            out = model_to_dict(out)
-            data = out
-
-        if isinstance(data, ModelSelect):
-            array_out = []
-            for item in data:
-                array_out.append(model_to_dict(item))
-                out = {"results": array_out}
-                data = out
+        data = web.handle_peewee_model_data(out)
 
         # Template expected, attempt render
         if template is not None:
-            # Add request to data
-            data = data or {}
-            data["request"] = request
-            out = web.template(cwd, template, data)
-
-            response = Response(out)
-            response.headers["Content-Type"] = "text/html;charset=utf-8"
-
-            # TODO: make reponse plugin based, so cors needs to be added - pre-respon
-            if cors:
-                cors.set(response)
-
-            return response
+            return web.handle_template_data(template, data, request, cwd, cors)
 
         # Reference example implementation here
         #   http://bit.ly/2ocHYNZ
         if file is True:
-            file_path = Path(cwd) / Path(out)
-            file = open(file_path.absolute().__str__(), "rb")
-            data = wrap_file(environ, file)
-
-            mtype = mimetype or mimetypes.guess_type(file_path.__str__())[0]
-
-            # Sometimes files are named without extensions in the local storage, so
-            # instead try and infer from the route
-            if mtype is None:
-                urifile = environ.get("PATH_INFO").split("/")[-1:][0]
-                mtype = mimetypes.guess_type(urifile)[0]
-
-            response = Response(data, direct_passthrough=True)
-            response.headers["Content-Type"] = "{};charset=utf-8".format(mtype)
-            response.headers["Cache-Control"] = "public, max-age=10800"
-
-            if cors:
-                cors.set(response)
-            return response
+            return web.handle_file_data(cwd, out, environ, mimetype, cors)
 
         # No template, just plain old string response
         if isinstance(data, str):
-            response = Response(data)
-            response.headers["Content-Type"] = "text/html;charset=utf-8"
-            if cors:
-                cors.set(response)
-            return response
+            return web.handle_str_data(data, cors)
+
 
         # Just raw data, send as is
         # TODO: Must be flagged as json explicity
-        out = tojson(data)
-        response = Response(out)
-        response.headers["Content-Type"] = "application/json"
+        response = web.handle_json_data(data)
         if cors:
             cors.set(response)
         return response
@@ -381,4 +428,4 @@ class web(object):
 
     @staticmethod
     def all():
-        return web.destination
+        return web.destinations

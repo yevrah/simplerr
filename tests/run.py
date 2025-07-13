@@ -9,7 +9,8 @@ import click
 
 
 # Identify key project directories and add them to the python search path
-project_path = Path(__file__).resolve().parents[1]
+project_path = Path(__file__).parent.parent / 'src'
+print(project_path)
 sys.path.append( str(project_path) )
 
 class test_processor(object):

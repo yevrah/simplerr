@@ -15,10 +15,11 @@ class SessionSignalMixin:
         else:
             request.session = self.get(sid)
 
-    def post_response(self, request, response):
-        if request.session.should_save:
-            self.save(request.session)
-            response.set_cookie(self.COOKIE_NAME, request.session.sid)
+    def post_response(self, request, response, exc):
+        if hasattr(request, "session"):
+            if request.session.should_save:
+                self.save(request.session)
+                response.set_cookie(self.COOKIE_NAME, request.session.sid)
 
 
 class MMemorySessionStore(SessionStore, SessionSignalMixin):
